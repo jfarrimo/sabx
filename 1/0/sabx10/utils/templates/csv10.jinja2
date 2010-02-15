@@ -1,0 +1,49 @@
+{#############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# sabx10 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+#############################################################################
+#
+# This template is used to render a complete set of SABX 1.0 data into a CSV
+# format file in the format used by the sabx_csv utility.
+#
+#############################################################################}
+"TYPE","START POINT","END POINT","TURN COMMENTS","TURN CUE","ROAD","ROAD COMMENTS","LANES","SHOULDER","SPEED","TRAFFIC"
+{% for ride in ride_list %}
+"RIDE",,,,,"{{ ride.description }}",,,,,
+{% endfor %}
+{% for parking in park_list %}
+"PARK","{{ parking.lat }}","{{ parking.lon }}",,,"{{ parking.description }}",,,,,
+{% endfor %}
+{% for stop in stop_list %}
+"STOP","{{ stop.lat }}","{{ stop.lon }}",,"{{ stop.type }}","{{ stop.description }}",,,,,
+{% endfor %}
+{% for poi in poi_list %}
+"POI","{{ poi.lat }}","{{ poi.lon }}",,,"{{ poi.description }}",,,,,
+{% endfor %}
+{% if turn_list|count > seg_list|count %}
+{%   set index_count = turn_list|count %}
+{% else %}
+{%   set index_count = seg_list|count %}
+{% endif %}
+{% for index in range(index_count) %}
+{%   if index < turn_list|count and index < seg_list|count %}
+"ROAD",,,"{{ turn_list[index].comments }}","{{ turn_list[index].cue }}","{{ seg_list[index].road }}","{{ seg_list[index].comments }}","{{ seg_list[index].lanes }}","{{ seg_list[index].shoulder }}","{{ seg_list[index].speed }}","{{ seg_list[index].traffic }}"
+{%   endif %}
+{% endfor %}

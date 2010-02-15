@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <style type="text/css">
+      body {font-family: Verdana, Arial, sans-serif;}
+      table {border-collapse:collapse;}
+      table, tr, td, th {border: 1px solid;}
+      #body_div {margin-left: auto; margin-right: auto; 
+      border: 0; padding: 0; max-width: 960px;}
+    </style>
+    <title>Setting Up SABX Map Generation</title>
+  </head>
+  <body>
+    <div id="body_div">
+      <h1>Setting Up SABX Map Generation</h1>
+      <p>
+	v1.0, 2010-1-31
+      </p>
+      <p>
+	Contact:<br />
+	Jay Farrimond<br />
+	jay@sabikerides.com<br />
+	<a href="http://www.sabikerides.com/">http://www.sabikerides.com/</a>
+      </p>
+      <p>
+	The <em>sabx10</em> package provides the tools to generate HTML and PDF
+	maps from SABX files.  The pieces of <em>sabx10</em> expect to live in
+	a directory structure they understand.  Since these packages are
+	generated and debugged under Ubuntu, the directories mentioned here
+	will follow the Debian filesystem hierarchy standards (more or less).
+	Ubuntu 9.04 is what's being used currently.
+      </p>
+      <p>
+	Here are some instructions to help you get the <em>sabx10</em> map
+	generation software up and running.  This has been developed and tested
+	on Ubuntu 9.04 with python 2.6.2.
+      </p>
+      <h2>Table of Contents</h2>
+      <ol>
+	<li><a href="#directories">create the directory structure</a></li>
+	<li><a href="#sabx-lib-map">download and install sabx10</a></li>
+	<li><a href="#markers">copy markers</a></li>
+	<li><a href="#cssjs">copy css and js files</li>
+	<li><a href="#images">copy and customize images</a></li>
+	<li><a href="#map-key">put your own key into the Google Maps
+	    key</a></li>
+	<li><a href="#third-party">install third-party software</a>
+	  <ol>
+	    <li><a href="#jquery">Jquery</a></li>
+	    <li><a href="#960gs">960gs</a></li>
+	    <li><a href="#jinja2">Jinja2</a></li>
+	    <li><a href="#reportlab">Reportlab</a></li>
+	    <li><a href="#matplotlib">Matplotlib</a></li>
+	    <li><a href="#pypdf">Pypdf</a></li>
+	    <li><a href="#mapnik">Mapnik</a></li>
+	    <li><a href="#postgres">PostgreSQL</a></li>
+	    <li><a href="#osm">OSM data</a></li>
+	  </ol>
+	</li>
+	<li><a href="#dbuser">put your own database username and password into
+	    the Mapnik templates</a></li>
+	<li><a href="#make">make the sample map</a></li>
+      </ol>
+      <h2 id="directories">1. create the directory structure.</h2>
+      <p>
+	All the pieces of the <em>sabx10</em> package expect to live in a
+	directory structure similar to the following.  <em>ride_data</em>
+	contains the SABX files. <em>site</em> contains everything necessary to
+	support the HTML maps. <em>temp</em> is used for storing temporary
+	bi-products of the build process. The finished HTML and PDF maps are
+	placed into the <em>site/rides</em> directory. Once the maps are
+	generated, the entire contents of <em>site</em> make up the site.
+      </p>
+      <p>
+	Create this directory structure in your home directory.  Don't worry
+	about the <em>makefile</em> and <em>sample.sabx</em> files yet.  They
+	will be addressed in a later step.
+      </p>
+      <p>
+	Everything under the <em>temp</em> directory is created by the make
+	file and is re-created if not found, so you only need to
+	create <em>temp</em>.  By the way, you should never count on the
+	contents of the temp directory to exist before <em>make</em> is run.
+      </p>
+      <pre>
+sabx/
+    makefile
+    ride_data/
+        sample_ride/
+            sample.sabx
+    site/
+        css/
+        images/
+        js/
+        markers/
+        rides/
+        staging/
+    temp/
+        sample_ride/
+            osm/
+            print/
+            profile/
+      </pre>
+      <h2 id="sabx-lib-map">2. download and install sabx10</h2>
+      <p>
+	The <em>sabx10</em> package is at the heart of map generation.  It
+	provides all the map generation utilities and all the related data
+	files. The package can be downloaded from here:
+      </p>
+      <ul>
+	<li><a href="http://www.sabikerides.com/sabx/1/0/sabx10-1.0.tar.gz">
+	    http://www.sabikerides.com/sabx/1/0/sabx10-1.0.tar.gz</a></li>
+      </ul>
+      <p>The installation instructions are here:</p>
+      <ul>
+	<li><a href="http://www.sabikerides.com/sabx/1/0/sabx10.html#install">
+	    http://www.sabikerides.com/sabx/1/0/sabx10.html</a></li>
+      </ul>
+      <h2 id="markers">3. copy markers</h2>
+      <p>
+	The markers are used by the HTML maps to show parking, turns, stops,
+	and pois.  They need to be available in the site used to show the HTML
+	maps.  They are included in the <em>sabx10</em> download in the 
+	<em>markers</em> directory. Copy the markers into
+	the <em>sabx/site/markers</em> directory.
+      </p>
+      <h2 id="cssjs">4. copy css and js files</h2>
+      <p>
+	The HTML maps all use standard css and javascript.  The files are
+	included in the <em>sabx10</em> package in the <em>web</em> directory.
+	Copy the files in there into the <em>sabx/site/css</em>
+	and <em>sabx/site/js</em> directories.
+      </p>
+      <h2 id="images">5. copy and customize images</h2>
+      <p>
+	The HTML maps require a favicon, and the PDF map generator requires a
+	logo and an arrowhead image. The images for these are included in the
+	<em>sabx10</em> download in the <em>images</em> directory.  Copy them
+	to the <em>site/images</em> directory.
+      </p>
+      <h2 id="map-key">6. put your own key into the Google Maps key</h2>
+      <p>
+	The HTML maps use Google Maps to display the map. The Google Maps API
+	requires a developer key to function properly.  The sample files
+	contain the SABikeRides key, and will only work for files served from
+	sabikerides.com.  In order to make them work for your site, you will
+	need to use your own key.
+      </p>
+      <p>
+	The Google Maps key is located in the ride and staging templates that
+	are installed as part of the <em>sabx10</em> package.  In Ubuntu they
+	are located in these locations:
+      </p>
+      <ul>
+	<li>
+	  /usr/local/lib/python2.6/dist-packages/sabx10/map/templates/ride_template.jinja2
+	</li>
+	<li>
+	  /usr/local/lib/python2.6/dist-packages/sabx10/map/templates/stage_template.jinja2
+	</li>
+      </ul>
+      <h2 id="third-party">7. install third-party software</h2>
+      <h3 id="jquery">7.1 Jquery</h3>
+      <p>
+	The HTML map pages make heavy use of Jquery and Jquery widgets in 
+	their javascript.  The Jquery libraries should be installed in 
+	the <em>site/js</em> directory.
+      </p>
+      <p>For the main jquery library, we are using v1.3.2 currently. You can 
+	download this from the <a href="http://jquery.com/">Jquery web site</a> 
+	on its
+	<a href="http://docs.jquery.com/Downloading_jQuery">downloads page</a>.
+      </p>
+      <p>
+	We currently use the <em>tabs</em> and <em>dialog</em> widgets from 
+	v1.7.2 of the Jquery UI widgets. You can download a customized version 
+	of the widget library from the 
+	<a href="http://jqueryui.com/home">Jquery UI</a> site on its 
+	<a href="http://jqueryui.com/download">downloads page</a>.
+      </p>
+      <p>
+	We are also using the <em>smoothness</em> look and feel from Jquery UI,
+	so copy the <em>smoothness</em> directory from the <em>css</em>
+	directory in the Jquery UI download into the <em>site/css</em>
+	directory.
+      </p>
+      <h3 id="960gs">7.2 960gs</h3>
+      <p>
+	The HTML maps make use of the <em>reset.css</em> and <em>text.css</em>
+	files from the 960gs package.  The package can be downloaded from the 
+	<a href="http://960.gs/">960gs web site</a> via the 
+	<a href="http://github.com/nathansmith/960-Grid-System/zipball/master">
+	  download</a> link.  Unzip the package and copy <em>reset.css</em> 
+	and <em>text.css</em> to the <em>site/css</em> directory.
+      </p>
+      <h3 id="jinja2">7.3 Jinja2</h3>
+      <p>
+	All of the Python programs make use of the Jinja2 templating engine to
+	render their output.  It's packaged for Ubuntu, so install it using
+	apt.
+      </p>
+      <code>$ sudo apt-get install python-jinja2</code>
+      <h3 id="reportlab">7.4 Reportlab</h3>
+      <p>
+	The PDF version of the turn-by-turn instructions is rendered using the
+	Reportlab python library.  It's packaged for Ubuntu, so install it
+	using apt.
+      </p>
+      <code>$ sudo apt-get install python-reportlab</code>
+      <h3 id="matplotlib">7.5 Matplotlib</h3>
+      <p>
+	The ride profiles use the python library Matplotlib to render the
+	profile PNGs.  It's packaged for Ubuntu, so install it using apt.
+      </p>
+      <code>$ sudo apt-get install python-matplotlib</code>
+      <h3 id="pypdf">7.6 Pypdf</h3>
+      <p>
+	The overall ride PDF files use the python library Pypdf to combine all
+	the seperate PDF pages into one PDF file.  It's packaged for Ubuntu, so
+	install it using apt.
+      </p>
+      <code>$ sudo apt-get install python-pypdf</code>
+      <h3 id="mapnik">7.7 Mapnik</h3>
+      <p>
+	Mapnik is used to generate the PNG images used by the PDF
+	maps. Currently v0.7.0 is being used.  The version in Ubuntu 9.04 is
+	out of date, so you will have to download it from the
+	<a href="http://mapnik.org/">Mapnik web site</a>.  There is an INSTALL 
+	document included in the package that tells how to install Mapnik.
+	Be sure to use the <em>INPUT_PLUGINS=</em> option for the scons
+	configure step of the process to make sure that the OSM plugin is
+	installed.  Even though I don't use them all, I just have it install
+	all the availabe plugins since I have plenty of disk space. I use it 
+	like this:
+      </p>
+      <code>$ python scons/scons.py configure INPUT_PLUGINS=all</code>
+      <p>
+	By the way, the
+	<a href="http://trac.mapnik.org/wiki/MapnikInstallation">installation
+	page in their wiki</a> is much more useful than the INSTALL file
+	included in the distribution.
+      </p>
+      <h3 id="postgres">7.8 PostgreSQL/PostGIS</h3>
+      <p>
+	I'm using PostgreSQL with the PostGIS extensions to store the generic
+	map data, meaning the non-SABX data.  I just use the default PostgreSQL
+	and PostGIS installs from Ubuntu.  
+	<a href="http://wiki.openstreetmap.org/index.php/Mapnik/PostGIS">
+	  This page</a> gives some information on setting it all up properly.
+      </p>
+      <h3 id="osm">7.9 OSM data</h3>
+      <p>
+	I use data from the 
+	<a href="http://www.openstreetmap.org/">OpenStreetMap</a> project to 
+	render the PDF maps.  You can find out how to get OSM data from
+	<a href="http://wiki.openstreetmap.org/wiki/Export">this page</a> and 
+	<a href="http://wiki.openstreetmap.org/wiki/Planet.osm">this page</a>.
+	I've used the <a href="http://downloads.cloudmade.com/">CloudMade</a>
+	extracts for the Texas maps because they're much smaller than the
+	entire planet extract.
+      </p>
+      <p>
+	Once I get the data dumps for the area of interest, I use the
+	<a href="http://wiki.openstreetmap.org/wiki/Osm2pgsql">osm2pgsql</a>
+	program to load it into PostgreSQL.  Be sure to use the option to set
+	the projection to 4326.  Here's an example:
+      </p>
+      <code>$ osm2psql -l -U gisuser texas.osm.bz2</code>
+      <h2 id="dbuser">8. put your own database username and password into the
+	Mapnik templates</h2>
+      <p>
+	The style sheet templates used by Mapnik to create the PDF maps contain
+	database user names and passwords.  These need to be changed from 'jay'
+	and a blank password to the values used in your system.  Just do a
+	search on 'user' and 'password' and you'll find them.  There are
+	multiple instances of each in both files.  They live in the following
+	files:
+      </p>
+      <ul>
+	<li>
+	  /usr/local/lib/python2.6/dist-packages/sabx10/osm/templates/styles_template.jinja2
+	</li>
+	<li>
+	  /usr/local/lib/python2.6/dist-packages/sabx10/osm/templates/styles_cluster_template.jinja2
+	</li>
+      </ul>
+      <h2 id="make">9. make the sample map</h2>
+      <p>
+	Now that all the software is installed and ready to go, it's time to
+	make the sample map to make sure everything is working.  The sample 
+	makefile and SABX file are included in the <em>sabx10</em> download
+	under the <em>sample</em> directory.
+      </p>
+      <p>
+	Copy <em>makefile</em> into the main <em>sabx</em> directory.  Copy
+	<em>sample.sabx</em> into the <em>sabx/ride_data/sample_ride</em>
+	directory.  Then, from the command-line, change to the <em>sabx</em>
+	directory and run make.
+      </p>
+      <p><code>$ cd ~/sabx</code></p>
+      <p><code>$ make</code></p>
+    </div>
+  </body>
+</html>

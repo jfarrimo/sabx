@@ -1,0 +1,777 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{#############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# sabx10 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+#############################################################################
+#
+# This template is used for generating the map page for a ride.
+#
+#############################################################################}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
+      xmlns:v="urn:schemas-microsoft-com:vml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>{{ title }} : San Antonio Bike Rides</title>
+
+    <link rel="icon" type="image/png" href="{{ image_dir }}/favicon.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ image_dir }}/favicon.ico" />
+
+    <link rel="stylesheet" type="text/css" media="all" href="{{ css_dir }}/reset.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{ css_dir }}/text.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{ css_dir }}/smoothness/jquery-ui-1.7.2.custom.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{ css_dir }}/ride.css" />
+
+    <script type="text/javascript"
+      src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAArRZNePBRmfwJkDkkRPNESRTitLe_f0f26hQB0rQ7w47bJ0GWghQJwLFzqditUQX-ubwfnxdVTzuoLQ&amp;sensor=false">
+    </script>
+    <script type="text/javascript"
+	    src="http://gmaps-utility-library.googlecode.com/svn/trunk/markermanager/1.1/src/markermanager.js">
+    </script>
+
+    <script type="text/javascript" src="{{ filebase }}.js"></script>
+
+    <script type="text/javascript" src="{{ js_dir }}/jquery-1.3.2.min.js"></script>
+    <script type="text/javascript" src="{{ js_dir }}/jquery-ui-1.7.2.custom.min.js"></script>
+    <script type="text/javascript" src="{{ js_dir }}/ride.js"></script>
+  </head>
+  <body>
+
+    <div id="no_js_warning">
+      If this message doesn't go away, you have javascript disabled.
+      Nothing will work correctly until you enable javascript.
+    </div>
+
+    <div id="header">
+      <table>
+	<tr>
+
+	  <td>
+	    <a href="{{ base_dir }}/index.html"><img src="{{ image_dir }}/logo.png" width="84" height="40" alt="SABikeRides.com logo"/></a>
+	  </td>
+
+	  <td>
+	    <span id="header-title">{{ title }}</span>
+	  </td>
+
+	  <td id="header-rides">
+	    <form action="">
+	      <div>
+{% for ride in rides %}
+                <input type="radio" id="header-ride-{{ loop.index0 }}" name="header-ride"
+{%   if loop.first %}
+		       checked="checked"
+{%   endif %}
+		       value="{{ loop.index0 }}" />
+		<label for="header-ride-{{ loop.index0 }}">{{ "%.1f" | format(ride.distance) }} miles</label>
+{% endfor %}
+  	      </div>
+            </form>
+	  </td>
+
+	  <td>
+	    <a href="" id="pdf-it">Download PDF</a>
+	  </td>
+
+	</tr>
+      </table>
+    </div>
+
+    <div id="tabs">
+      <ul id="tab-panel">
+        <li><a href="#tabs-overview"><span>Overview</span></a></li>
+        <li><a href="#tabs-parking"><span>Parking</span></a></li>
+        <li><a href="#tabs-stops"><span>Stops</span></a></li>
+	<li><a href="#tabs-pois"><span>POI</span></a></li>
+	<li><a href="#tabs-instructions"><span>Instructions</span></a></li>
+	<li><a href="#tabs-profiles"><span>Elevation</span></a></li>
+      </ul>
+
+{############}
+{# OVERVIEW #}
+{############}
+      <div id="tabs-overview">
+{% if photos %}
+	<p>
+	  <img src="{{ photos.src }}" title="{{ photos.title }}" alt="{{ photos.title }}"/>
+{%   if photos.photo_list|length() > 0 %}
+	  <br />Other Photos:
+{%   endif %}
+{%   for photo in photos.photo_list %}
+	  <br /><a href="{{ photo.href }}">{{ photo.desc }}</a>
+{%   endfor %}
+	</p>
+{% endif %}
+	{{ description -}}
+	<form action="">
+{% set hor_line = joiner("<hr />") %}
+{% for ride in rides %}
+{{ hor_line() }}
+          <p>
+	    <input type="radio" id="over-ride-{{ loop.index0 }}" name="over-ride"
+{%   if loop.first %}
+		   checked="checked"
+{%   endif %}
+		   value="{{ loop.index0 }}" />
+	    <label for="over-ride-{{ loop.index0 }}">{{ "%.1f" | format(ride.distance) }} miles</label>
+	    (<a href="{{ filebase }}_{{ ride.index }}.pdf">Download PDF</a>)<br />
+	    {{ ride.description }} 
+	  </p>
+{% endfor %}
+	</form>
+      </div>
+
+{###########}
+{# PARKING #}
+{###########}
+      <div id="tabs-parking">
+	<div id="parking-help-div">
+	  <a id="parking-help" href="">Help!</a>
+	</div>
+	<p>
+{% for ride in rides %}
+	  <span class="parking-spans" id="parking-{{ loop.index0 }}">{{ ride.parking.description|e }}</span>
+{% endfor %}
+	</p>
+	<form action="">
+	  <div>
+            <label for="park-from">Starting from:</label>
+	    <br />
+	    <textarea id="park-from" rows="2" cols="30"></textarea>
+	    <br />
+            <input type="submit" id="park-submit" value="Get directions to parking" /> 
+	    <br />
+	    <input type="submit" id="park-clear" value="Clear parking directions from map" />
+	    <br />
+	    <input type="submit" id="park-print" value="Get printable parking directions" />
+	  </div>
+        </form>
+	<p />
+	<div id="park-directions"></div>
+      </div>
+{# http://maps.google.com/maps?saddr=120+Woodway+Lane+%20San%20Antonio,+TX+78209&daddr=29.00,-98.00 #}
+
+{#########}
+{# STOPS #}
+{#########}
+      <div id="tabs-stops">
+	<div id="stops-help-div">
+	  <a id="stops-help" href="">Help!</a>
+	</div>
+
+{% for ride in rides %}
+{%   if ride.stops|length() == 0 %}
+	<div class="stops-tabs stops-no-stops" id="stops-{{ loop.index0 }}">
+	  There are no stops for this option.
+        </div>
+{%   else %}
+	<table border="0" class="stops-tabs tab-table" id="stops-{{ loop.index0 }}">
+          <tr>
+            <th class="tab-evenrow">Ride Dist.</th>
+            <th class="tab-evenrow">Type</th>
+            <th class="tab-evenrow">Description</th>
+          </tr>
+{%     set ride_index = loop.index0 %}
+{%     for stop in ride.stops %}
+	  <tr class="stops-rows">
+            <td class="stops-{{ ride_index }}-{{ loop.index0 }} stops-dist {{ loop.cycle('tab-oddrow','tab-evenrow') }}">
+	      {{ "%.1f" | format(stop.distance) }}
+	    </td>
+            <td class="stops-{{ ride_index }}-{{ loop.index0 }} stops-label {{ loop.cycle('tab-oddrow','tab-evenrow') }}">
+	      {{ stop.type|e }}
+	    </td>
+            <td class="stops-{{ ride_index }}-{{ loop.index0 }} {{ loop.cycle('tab-oddrow','tab-evenrow') }}">
+              {{ stop.description|e }}
+{%       if stop.off_route >= 0.1 %}
+	      ({{ "%.1f" | format(stop.off_route) }} miles off route)
+{%       endif %}
+	    </td>
+          </tr>
+{%     endfor %}
+	</table>
+
+{%   endif %}
+{% endfor %}
+      </div>
+
+{########}
+{# POIs #}
+{########}
+      <div id="tabs-pois">
+	<div id="pois-help-div">
+	  <a id="pois-help" href="">Help!</a>
+	</div>
+
+{% for ride in rides %}
+{%   if ride.pois|length() == 0 %}
+	<div class="pois-tabs pois-no-pois" id="pois-{{ loop.index0 }}">
+	  There are no points of interest for this option.
+        </div>
+{%   else %}
+	<table border="0" class="pois-tabs tab-table" id="pois-{{ loop.index0 }}">
+          <tr>
+            <th class="tab-evenrow">Ride Dist.</th>
+            <th class="tab-evenrow">Description</th>
+          </tr>
+{%   set ride_index = loop.index0 %}
+{%   for poi in ride.pois %}
+	  <tr class="pois-rows">
+            <td class="pois-{{ ride_index }}-{{ loop.index0 }} pois-dist {{ loop.cycle('tab-oddrow','tab-evenrow') }}">
+              {{ "%.1f" | format(poi.distance) }}</td>
+            <td class="pois-{{ ride_index }}-{{ loop.index0 }} {{ loop.cycle('tab-oddrow','tab-evenrow') }}">
+              {{ poi.description|e }}
+{%     if poi.off_route >= 0.1 %}
+	      ({{ "%.1f" | format(poi.off_route) }} miles off route)
+{%     endif %}
+	    </td>
+          </tr>
+{%   endfor %}
+	</table>
+
+{%   endif %}
+{% endfor %}
+      </div>
+
+{################}
+{# INSTRUCTIONS #}
+{################}
+      <div id="tabs-instructions">
+	<table id="inst-help-table">
+	  <tr>
+	    <td style="text-align: left;">
+	      <form action="">
+		<div>
+		  <input type="checkbox" class="inst-ckbox" id="inst-ckbox-ck" />
+		  <label class="inst-ckbox" for="inst-ckbox-ck">Show road descriptions in list?</label>
+		</div>
+	      </form>
+	    </td>
+	    <td style="text-align: right;">
+	      <a id="inst-help" href="">Help!</a>
+	    </td>
+	  </tr>
+	</table>
+{% for ride in rides %}
+{%   set ride_index = loop.index0 %}
+
+{# SHORT INSTRUCTIONS #}
+{######################}
+{%   set row_class = cycler('tab-evenrow','tab-oddrow') %}
+	<table border="0" 
+               class="inst-tabs tab-table" 
+               id="inst-short-{{ loop.index0 }}">
+          <tr>
+            <th class="{{ row_class.next() }}">Total Miles</th>
+            <th class="{{ row_class.current }}">Instructions</th>
+            <th class="{{ row_class.current }}">For Miles</th>
+          </tr>
+{%   for turn in ride.turns %}
+	  <tr class="inst-rows">
+            <td class="inst-{{ ride_index }}-{{ loop.index0 }} {{ row_class.next() }}">
+              {{ "%.2f" | format(turn.distance) }}
+	    </td>
+            <td class="inst-{{ ride_index }}-{{ loop.index0 }} {{ row_class.current }}">
+              {{ turn.cue }}
+	    </td>
+            <td class="inst-{{ ride_index }}-{{ loop.index0 }} {{ row_class.current }}">
+              {{ "%.2f" | format(ride.segs[loop.index0].length) }}
+	    </td>
+          </tr>
+{%   endfor %}
+	  <tr>
+            <td class="{{ row_class.next() }}">{{ "%.2f" | format(ride.segs[-1].end_dist) }}</td>
+            <td class="{{ row_class.current }}">Arrive at finish</td>
+            <td class="{{ row_class.current }}">&nbsp;</td>
+          </tr>
+	</table>
+
+{# LONG INSTRUCTIONS #}
+{#####################}
+{%   set row_class = cycler('tab-evenrow','tab-oddrow') %}
+	<table border="0" 
+               class="inst-tabs tab-table" 
+               id="inst-long-{{ loop.index0 }}">
+          <tr>
+            <th class="{{ row_class.next() }}">Total Miles</th>
+            <th class="{{ row_class.current }}">Instructions</th>
+            <th class="{{ row_class.current }}">For Miles</th>
+          </tr>
+{%   for seg in ride.segs %}
+	  <tr class="inst-rows">
+            <td class="inst-{{ ride_index }}-{{ loop.index0 }} {{ row_class.next() }}">
+              {{ "%.2f" | format(ride.turns[loop.index0].distance) }}</td>
+            <td class="inst-{{ ride_index }}-{{ loop.index0 }} {{ row_class.current }}">
+              <span class="inst-{{ ride_index }}-{{ loop.index0 }} inst-instructions">
+                {{ ride.turns[loop.index0].cue }}</span><br />
+{%     if ride.turns[loop.index0].comments|trim()|length() > 0 %}
+              {{ ride.turns[loop.index0].comments }}<br />
+{%     endif %}
+              <span class="segs-{{ ride_index }}-{{ loop.index0 }} inst-header">
+                {{ seg.road }}</span><br />
+{%     if seg.comments|trim()|length() > 0 %}
+              {{ seg.comments }}<br />
+{%     endif %}
+              <span class="segs-{{ ride_index }}-{{ loop.index0 }} inst-label">
+                lanes</span>: {{ seg.lanes }}<br />
+              <span class="segs-{{ ride_index }}-{{ loop.index0 }} inst-label">
+                shoulder</span>: {{ seg.shoulder }}<br />
+              <span class="segs-{{ ride_index }}-{{ loop.index0 }} inst-label">
+                traffic</span>: {{ seg.traffic }}<br />
+              <span class="segs-{{ ride_index }}-{{ loop.index0 }} inst-label">
+                speed</span>: {{ seg.speed }}
+            </td>
+            <td class="inst-{{ ride_index }}-{{ loop.index0 }} {{ row_class.current }}">
+              {{ "%.2f" | format(seg.length) }}</td>
+          </tr>
+{%   endfor %}
+	  <tr>
+            <td class="{{ row_class.next() }}">{{ "%.2f" | format(ride.segs[-1].end_dist) }}</td>
+            <td class="{{ row_class.current }}">Arrive at finish</td>
+            <td class="{{ row_class.current }}">&nbsp;</td>
+          </tr>
+	</table>
+
+{% endfor %}
+      </div>
+
+{############}
+{# PROFILES #}
+{############}
+
+{#### TAB ####}
+      <div id="tabs-profiles">
+	<div id="profs-help-div">
+	  <a id="profs-help" href="">Help!</a>
+	</div>
+{% for ride in rides %}
+	<div class="prof-{{ loop.index0 }} prof-tabs">
+          <div class="prof-title">Ride Elevation Analysis</div>
+	  <img class="prof-{{ loop.index0 }} prof-graph-prof" src="{{ ride.profile_small }}" alt="small ride profile"/><br />
+
+	  <table class="prof-table">
+	    <tr>
+	      <th colspan="4">Ride Analysis</th>
+	    </tr>
+	    <tr>
+	      <th>&nbsp;</th>
+	      <th>elevation change (feet)</th>
+	      <th>distance (miles)</th>
+	      <th>avg. grade (%)</th>
+	    </tr>
+	    <tr>
+	      <td>Climbing</td>
+	      <td>{{ "%.2f"|format(ride.ele['rise_height']) }}</td>
+	      <td>{{ "%.2f"|format(ride.ele['rise_dist']) }}</td>
+	      <td>{{ "%.1f"|format(ride.ele['rise_grade']) }}</td>
+	    </tr>
+	    <tr>
+	      <td>Descending</td>
+	      <td>{{ "%.2f"|format(ride.ele['fall_height']) }}</td>
+	      <td>{{ "%.2f"|format(ride.ele['fall_dist']) }}</td>
+	      <td>{{ "%.1f"|format(ride.ele['fall_grade']) }}</td>
+	    </tr>
+	    <tr>
+	      <td>Overall</td>
+	      <td>{{ "%.2f"|format(ride.ele['net_height']) }}</td>
+	      <td>{{ "%.2f"|format(ride.ele['length']) }}</td>
+	      <td>&nbsp;</td>
+	    </tr>
+	  </table>
+
+	  <table class="prof-table">
+	    <tr>
+	      <th colspan="3">Top 10 Climbs:</th>
+	    </tr>
+	    <tr>
+	      <th>Rank</th>
+	      <th>Gradient (%)</th>
+	      <th>Distance (miles)</th>
+	    </tr>
+{%   for climb in ride.ele['climbs'] %}
+	    <tr>
+	      <td>{{ loop.index }}</td>
+	      <td>{{ "%.1f"|format(climb[0]) }}</td>
+	      <td>{{ "%.2f"|format(climb[1]) }}</td>
+	    </tr>
+{%   endfor %}
+	  </table>
+        </div>
+
+	<div class="prof-tabs prof-{{ loop.index0 }}
+		    prof-seg-title">Segment Elevation Analyses</div>
+
+{%   set ride_index = loop.index0 %}
+{%   for seg in ride.segs %}
+	<div class="prof-{{ ride_index }}-{{ loop.index0 }} prof-rows 
+                    prof-tabs prof-{{ ride_index }} 
+                    prof-profile">
+          {{ seg.road }} from {{ seg.fromto }}<br />
+          Starting at {{ "%.2f" | format(ride.turns[loop.index0].distance) }} miles 
+	  for {{ "%.2f" | format(seg.length) }} miles<br />
+          <img class="prof-{{ ride_index }}-{{ loop.index0 }} prof-graph-prof" 
+		 src="{{ seg.profile_small }}" alt="segment {{ loop.index0 }} small profile"/><br />
+
+	  <table class="prof-{{ ride_index }}-{{ loop.index0 }} prof-table">
+	    <tr class="prof-{{ ride_index }}-{{ loop.index0 }}">
+	      <th  class="prof-{{ ride_index }}-{{ loop.index0 }}" colspan="4">Segment Analysis</th>
+	    </tr>
+	    <tr class="prof-{{ ride_index }}-{{ loop.index0 }}">
+	      <th class="prof-{{ ride_index }}-{{ loop.index0 }}">&nbsp;</th>
+	      <th class="prof-{{ ride_index }}-{{ loop.index0 }}">elevation change (feet)</th>
+	      <th class="prof-{{ ride_index }}-{{ loop.index0 }}">distance (miles)</th>
+	      <th class="prof-{{ ride_index }}-{{ loop.index0 }}">avg. grade (%)</th>
+	    </tr>
+	    <tr class="prof-{{ ride_index }}-{{ loop.index0 }}">
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">Climbing</td>
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">{{ "%.2f"|format(ride.ele_segs[loop.index0]['rise_height']) }}</td>
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">{{ "%.2f"|format(ride.ele_segs[loop.index0]['rise_dist']) }}</td>
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">{{ "%.1f"|format(ride.ele_segs[loop.index0]['rise_grade']) }}</td>
+	    </tr>
+	    <tr class="prof-{{ ride_index }}-{{ loop.index0 }}">
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">Descending</td>
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">{{ "%.2f"|format(ride.ele_segs[loop.index0]['fall_height']) }}</td>
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">{{ "%.2f"|format(ride.ele_segs[loop.index0]['fall_dist']) }}</td>
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">{{ "%.1f"|format(ride.ele_segs[loop.index0]['fall_grade']) }}</td>
+	    </tr>
+	    <tr class="prof-{{ ride_index }}-{{ loop.index0 }}">
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">Overall</td>
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">{{ "%.2f"|format(ride.ele_segs[loop.index0]['net_height']) }}</td>
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">{{ "%.2f"|format(ride.ele_segs[loop.index0]['length']) }}</td>
+	      <td class="prof-{{ ride_index }}-{{ loop.index0 }}">&nbsp;</td>
+	    </tr>
+	  </table>
+
+{%     if ride.ele_segs[loop.index0]['climbs']|length() > 0 %}
+	  <table class="prof-{{ ride_index }}-{{ loop.index0 }} prof-table">
+	    <tr class="prof-{{ ride_index }}-{{ loop.index0 }}">
+	      <th class="prof-{{ ride_index }}-{{ loop.index0 }}" colspan="3">Top 10 Climbs:</th>
+	    </tr>
+	    <tr class="prof-{{ ride_index }}-{{ loop.index0 }}">
+	      <th class="prof-{{ ride_index }}-{{ loop.index0 }}">Rank</th>
+	      <th class="prof-{{ ride_index }}-{{ loop.index0 }}">Gradient (%)</th>
+	      <th class="prof-{{ ride_index }}-{{ loop.index0 }}">Distance (miles)</th>
+	    </tr>
+{%       set seg_index = loop.index0 %}
+{%       for climb in ride.ele_segs[loop.index0]['climbs'] %}
+	    <tr class="prof-{{ ride_index }}-{{ seg_index }}">
+	      <td class="prof-{{ ride_index }}-{{ seg_index }}">{{ loop.index }}</td>
+	      <td class="prof-{{ ride_index }}-{{ seg_index }}">{{ "%.1f"|format(climb[0]) }}</td>
+	      <td class="prof-{{ ride_index }}-{{ seg_index }}">{{ "%.2f"|format(climb[1]) }}</td>
+	    </tr>
+{%       endfor %}
+	  </table>
+{%     endif %}
+
+        </div>
+{%   endfor %}
+
+{% endfor %}
+      </div>
+
+{#### PROFILE DIALOGS ####}
+{% for ride in rides %}
+      <div id="prof-prof-{{ loop.index0 }}" class="prof-dialogs"
+	   title="Overall Ride">
+	<img src="{{ ride.profile_large }}" alt="large ride profile"/>
+      </div>
+
+{%   set ride_index = loop.index0 %}
+{%   for seg in ride.segs %}
+      <div id="prof-prof-{{ ride_index }}-{{ loop.index0 }}" class="prof-dialogs"
+	   title="{{ "%s from %s"|format(seg.road,seg.fromto) }}">
+        <img src="{{ seg.profile_large }}" alt="segment {{ loop.index0 }} large profile"/>
+      </div>
+{%   endfor %}
+{% endfor %}
+
+{#### HELP DIALOGS ####}
+      <div id="help-dlg-parking" class="help-dialogs" title="Parking Help">
+	<p>
+	  The first thing you have to do for any of these rides is get to 
+	  the starting place.  This tab gives you everything you need to
+	  get there.
+	</p>
+	<p>
+	  Up top is a description of the starting place.  Below that is a box
+	  to enter the address of where you're coming from so you can get
+	  directions.  When you've entered the address, press the 
+	  'Get directions to parking' button and it'll tell you how to 
+	  get there. You'll get the usual Google Maps turn-by-turn 
+	  instructions below the address box, and you'll get a corresponding 
+	  line drawn on the map.  Follow these directions, and you'll get to 
+	  the ride.
+	</p>
+	<p>
+	  Once you've digested the directions you will probably get tired
+	  of having the map cluttered up by them. Just hit the 'Clear parking 
+	  directions from map' button and they will go away.
+	</p>
+	<p>
+	  If you'd like to print out the driving directions, the "Get printable
+	  parking directions" button will bring up a Google Maps page with
+	  the parking directions in them that you can manipulate and print out.
+	</p>
+      </div>
+
+      <div id="help-dlg-stops" class="help-dialogs" title="Stops Help">
+	<p>
+	  Here's all the information you need to know about stops on the ride. 
+	  Mostly this is where to get water and food and how far away it is.
+	  I generally prefer to list convenience stores and things like that 
+	  because they're geared to deal with travelers on the go.
+	  I don't include all the restaurants and hotels and everything else, 
+	  since those things aren't really necessary to help you get through 
+	  the ride and there are far better resources on the web for finding 
+	  those sorts of things. If there's a restaurant I particularly like 
+	  eating at after a ride, I'll mention it in the overview.
+	</p>
+	<p>
+	  You can click on any stop in the list and it'll show its info window
+	  on the map.  This helpful if you're not sure where on the map a stop
+	  is.
+	</p>
+	<p>
+	  <span class="help-label">Ride Dist.:</span> Distance to the stop from
+	  the start of the ride.  This is in miles. Sometimes I include
+	  stops that aren't actually on the route but are close to it.  For those,
+	  I'll show how far off the route the stop is.  These are as-the-crow-flies
+	  distances based on the point in the ride you would turn off to get
+	  to the stop, so the street distance is probably a little further to
+	  get to the stop.
+	</p>
+	<p>
+	  <span class="help-label">Type:</span> What type of place you're 
+	  stopping at. It's mostly convenience stores, but I do add other 
+	  types of places when they are very convenient or are the only things 
+	  available.
+	</p>
+	<p>
+	  <span class="help-label">Description:</span> Anything you need to 
+	  know about this stop.
+	</p>
+      </div>
+
+      <div id="help-dlg-pois" class="help-dialogs" title="Points of Interest Help">
+	<p>
+	  Occasionally there are interesting things to check out along the
+	  ride.  Here I tell you all about them.
+	</p>
+	<p>
+	  You can click on any POI in the list and it'll show its info window
+	  on the map.  This is helpful if you're not sure where on the map a POI
+	  is.
+	</p>
+	<p>
+	  <span class="help-label">Ride Dist.:</span> Distance to the POI from
+	  the start of the ride.  This is in miles. Sometimes I include
+	  POIs that aren't actually on the route but are close to it.  For those,
+	  I'll show how far off the route the POI is.  These are as-the-crow-flies
+	  distances based on the point in the ride you would turn off to get
+	  to the POI, so the street distance is probably a little further to
+	  get to the it.
+	</p>
+	<p>
+	  <span class="help-label">Description:</span> Anything you need to 
+	  know about this POI.
+	</p>
+      </div>
+
+      <div id="help-dlg-inst" class="help-dialogs" title="Instructions Help">
+	<p>
+	  What does all this stuff mean? These are all the instructions 
+	  necessary to complete this ride. This includes the turns and 
+	  intersections of interest and which way to go when you reach them.
+	</p>
+	<p>
+	  There are short and long instructions.  You see the long 
+	  instructions when you check the "Show road descriptions in list?" 
+	  box.
+	  The long instructions include information about the street
+	  and any comments for the turns.
+	</p>
+	<p>
+	  You can click on any instruction in the list and it'll show its 
+	  turn info window in the map.  If you click on the road information in
+	  the long instructions it'll show you its road info window in the map.
+	  This helpful if you're not sure where on the map a stop or road
+	  is.
+	</p>
+	<p>
+	  When there's a road that the road conditions change on, such as
+	  speed, shoulder or lanes, I put the worst of the conditions
+	  down. This means narrowest shoulder, fastest speed, and most
+	  lanes of traffic.  This way you can only be pleasently surprised.
+	</p>
+	<h1>Short Instructions</h1>
+	<p>
+	  <span class="help-label">Total Miles:</span> Distance to the turn 
+	  from start of ride.
+	</p>
+	<p>
+	  <span class="help-label">Instructions:</span> What to do at the 
+	  turn. Usually it'll be RIGHT or LEFT, and occasionally STRAIGHT.  
+	  The first instruction of the ride is the direction to head away 
+	  from parking.
+	</p>
+	<p>
+	  <span class="help-label">For Miles:</span> Length of the road you 
+	  turn onto.
+	</p>
+	<h1>Long Instructions</h1>
+	<p>
+	  The long instructions include all information from the short
+	  instructions plus the following:
+	</p>
+	<p>
+	  <span class="help-label">Turn Comments:</span> These show-up
+	  right below the turn instruction and tell you any additional
+	  information that is helpful to make the turn.  I'll point out
+	  when the current road dead-ends into the next one, or when
+	  the next road T's into the current one.  A 'T' intersection is
+	  when the new road dead-ends into the one you're currently on.
+	</p>
+	<p>
+	  <span class="help-label">Road Name:</span> Name of the road
+	  you are turning onto. When a road changes names while you're
+	  going down it, I'll put the name as "first name/second name".
+	  Also, there are lots of ways to designate country roads.
+	  Sometimes they're called "Farm Road", sometimes "Ranch Road",
+	  and sometimes just "FM" (for Farm to Market).  In fact, you
+	  might see all three designations used on the same road in
+	  different places.  I've just settled on calling them all "FM"
+	  since it's easier to type.  Therefore, when I call something
+	  "FM", you should keep your eyes open for any of the three
+	  designations.
+	</p>
+	<p>
+	  <span class="help-label">Road Description:</span> Description of
+	  the road and any relevant facts about it.
+	</p>
+	<p>
+	  <span class="help-label">Lanes:</span> How many lanes this
+	  road has.  This includes both directions, but doesn't include
+	  center turning lanes when they exist.  The difference between a 1
+	  and a 2 is sometimes a close call.  I generally say there is one lane
+	  if there's no center stripe.  This means that many streets that
+	  I rate as a 1 can fit two cars but aren't striped.
+	</p>
+	<p>
+	  <span class="help-label">Shoulder:</span>  How wide the shoulder is.
+	  This is a subjective measurement that tells you how many bikes
+	  you can comfortably fit next to eachother.  1/4 means that it's 
+	  just enough shoulder
+	  to tease you but isn't very helpful.  1/2 means the shoulder is
+	  wide enough for a cyclist, but that cars still need to scoot over
+	  to give you room.  1 means that a cyclist can comfortably fit in the
+	  shoulder with enough room for cars to pass without moving over.
+	  Numbers go up to 2+ for super-wide shoulders.
+	</p>
+	<p>
+	  <span class="help-label">Traffic:</span> How heavy the traffic is on
+	  this road.  Right now this is a TOTALLY subjective measurement based
+	  on how I feel about the roads after having ridden them. In the near
+	  future I hope to switch to real traffic counts or something else
+	  that is more objective and, frankly, more useful.
+	</p>
+	<p>
+	  <span class="help-label">Speed:</span> Speed limit on this road.
+	  I make note of the speed limit signs and go with the fastest limit.
+	  It's not unusual for a road to change speed limits as you go down it
+	  so I choose the fastest in order to not under-estimate what the
+	  traffic is doing on the road.  Some roads don't have posted speed
+	  limits, so I go with reasonable estimates.  I usually guess 30 mph 
+	  for residential and 40 mph for rural roads.
+	</p>
+      </div>
+
+      <div id="help-dlg-profs" class="help-dialogs" title="Elevation Help">
+	<p>
+	  This is an analysis of the elevation data for the ride and for each
+	  of the segments of the ride.
+	</p>
+	<p>
+	  The graphs show the elevation profiles.  They are shaded underneath
+	  to show how steep each part of the ride is, lighter for less steep all
+	  the way to black for very steep.  I normalize the height so you see 
+	  elevations from 0 to the tallest point on the ride. I don't 
+	  put the true elevation above sea level because, for the San Antonio area,
+	  elevation above sea level isn't very interesting since we're never
+	  high enough to make a difference. Also, you can click on a graph to see a
+	  larger version of it.  The larger graph will pop up in a separate window.
+	</p>
+	<p>
+	  The ride and segment analyses show how much climbing and descending you'll
+	  do in the ride or segment and what the average grade is for each. The 
+	  climb list tells you how steep and how long the worst climbs in the ride 
+	  or segment are, and is ranked by steepness.
+	</p>
+      </div>
+
+    </div>
+
+    <div id="map">
+      <div id="map-toggles">
+	<form action="">
+	  <div>
+	    <input type="submit" class="map-show-tabs" id="show-tabs-show" value="Show Tabs" style="display: none;"/>
+	    <input type="submit" class="map-show-tabs" id="show-tabs-hide" value="Hide Tabs" /> 
+	    
+	    <input type="submit" id="map-rezoom" value="Reset Map" /> 
+
+	    <input type="checkbox" class="show-park" id="show-park-ck" checked="checked" />
+	    <label class="show-park" for="show-park-ck">parking</label>
+	    <img src="{{ marker_dir }}/park.png" id="show-park-img" width="32" height="32" alt="Parking Icon" />
+
+	    <input type="checkbox" class="show-stops" id="show-stops-ck" checked="checked" />
+	    <label class="show-stops" for="show-stops-ck">stops</label>
+	    <img src="{{ marker_dir }}/stop.png" id="show-stops-img" width="32" height="32" alt="Stop Icon" />
+
+	    <input type="checkbox" class="show-pois" id="show-pois-ck" checked="checked" />
+	    <label class="show-pois" for="show-pois-ck">POI</label>
+	    <img src="{{ marker_dir }}/poi.png" id="show-pois-img" width="32" height="32" alt="POI Icon" />
+
+	    <input type="checkbox" class="show-turns" id="show-turns-ck" checked="checked" />
+	    <label class="show-turns" for="show-turns-ck">turns</label>
+	    <img src="{{ marker_dir }}/99.9.png" id="show-turns-img" width="32" height="32" alt="Turn Icon" />
+	  </div>
+	</form>
+      </div>
+      <div id="map-canvas"></div>
+    </div>
+
+    <div id="sab-copyright">
+      All images, text, and HTML Copyright &#169; 2003, 2009, 2010 by Farrimond Technologies, LLC
+    </div>
+
+{% if analytics %}
+    <script type="text/javascript">
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+      try {
+      var pageTracker = _gat._getTracker("{{ analytics }}");
+      pageTracker._trackPageview();
+      } catch(err) {}
+    </script>
+{% endif %}
+    
+  </body>
+</html>

@@ -1,0 +1,119 @@
+{#############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# sabx10 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+#############################################################################
+#
+# This template is used for taking simple lists of points, usually taken
+# from GPX or TCX files, and converting them into SABX 1.0 skeletons.
+# A uuid and title are included with the point data.
+#
+#############################################################################}
+<?xml version='1.0' encoding='utf-8'?>
+<rideset xmlns="http://www.sabikerides.com/SABX/1/0/"
+	 version="1.0">
+
+  <uuid>{{ uuid }}</uuid>
+  <version>1</version>
+  <zip_prefix></zip_prefix>
+
+  <ride_type>road</ride_type>
+  <title>{{ title }}</title>
+  <description></description>
+  <terrain></terrain>
+
+  <photos>
+    <title></title>
+    <src></src>
+    <photo>
+      <desc></desc>
+      <href></href>
+    </photo>
+  </photos>
+
+  <!-- ******************************************* -->
+  <!-- ride description                            -->
+  <!-- ******************************************* -->
+
+  <parking id='1'>
+    <description></description>
+    <lat>{{ points[0]['lat'] }}</lat>
+    <lon>{{ points[0]['lon'] }}</lon>
+  </parking>
+
+  <turn id='1'>
+    <fromto></fromto>
+    <cue></cue>
+    <comments></comments>
+  </turn>
+
+  <segment id='1'>
+    <road></road>
+    <fromto></fromto>
+    <comments></comments>
+    <lanes></lanes>
+    <shoulder></shoulder>
+    <traffic></traffic>
+    <speed></speed>
+{% for point in points %}
+    <waypoint id='{{ point['index'] }}'>
+      <lat>{{ point['lat'] }}</lat>
+      <lon>{{ point['lon'] }}</lon>
+      <ele>{{ point['ele'] }}</ele>
+    </waypoint>
+{% endfor %}
+  </segment>
+
+  <stop id='1'>
+    <type></type>
+    <description></description>
+    <lat></lat>
+    <lon></lon>
+  </stop>
+
+  <poi id='1'>
+    <description></description>
+    <lat></lat>
+    <lon></lon>
+  </poi>
+
+  <!-- ******************************************* -->
+  <!-- Ridelist                                    -->
+  <!-- ******************************************* -->
+
+  <ride id='1'>
+    <description></description>
+    <parking_ref id='1' />
+    <turn_ref id='1' />
+    <segment_ref id='1' />
+  </ride>
+
+  <!-- ******************************************* -->
+  <!-- History                                     -->
+  <!-- ******************************************* -->
+
+  <history>
+    <update>
+      <version>1</version>
+      <date></date>
+      <description>Created.</description>
+    </update>
+  </history>
+
+</rideset>

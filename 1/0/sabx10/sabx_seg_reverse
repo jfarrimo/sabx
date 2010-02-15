@@ -1,0 +1,98 @@
+#!/usr/bin/python
+###############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+###############################################################################
+"""
+NAME
+
+    sabx_seg_reverse - reverse a segment in an SABX 1.0 file
+
+SYNOPSIS
+
+    sabx_seg_reverse [OPTION] seg_id
+
+DESCRIPTION
+
+    Reverse the order of a sement's waypoints in an SABX 1.0 file.
+
+    seg_id
+        id of segment to reverse
+
+    -i INFILE, --infile=INFILE
+        SABX 1.0 file to read from
+
+    -o OUTFILE, --outfile=OUTFILE
+        SABX 1.0 file to write to
+
+    -m, --man
+        print this extended help and exit
+
+    -h, --help
+        print basic help and exit
+
+AUTHOR
+
+    Jay Farrimond
+
+REPORTING BUGS
+
+    Report bugs to <jay@sabikerides.com>
+
+SEE ALSO
+
+    The complete specification for SABX 1.0 files is available at 
+    http://www.sabikerides.com/sabx/1/0/
+
+    The library that this utility is built on (sabx-lib) is available at
+    http://www.sabikerides.com/sabx/lib/index.html
+
+COPYRIGHT
+
+    sabx10 - an SABX file manipulation library
+    Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+
+    This file is part of sabx10.
+
+    sabx10 is free software: you can redistribute it and/or modify it under the
+    terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later
+    version.
+
+    sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+    details.
+
+    You should have received a copy of the GNU General Public License along
+    with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+import os.path
+import sys
+
+from sabx10.utils import RevProcessor, determine_path
+
+if __name__ == '__main__':
+    template = os.path.join(determine_path(), 'templates', 'sabx10.jinja2')
+    try:
+        RevProcessor(template, __doc__).process()
+    except Exception as exc:
+        print "ERROR ENCOUNTERED: %s" % exc
+        sys.exit(2)

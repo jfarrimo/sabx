@@ -1,0 +1,163 @@
+#!/usr/bin/python -W ignore::DeprecationWarning
+###############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+###############################################################################
+"""
+NAME
+
+    sabx_pdf_combine - combine all the PDF files for a rideset
+
+SYNOPSIS
+
+    sabx_pdf_combine [OPTION] <output PDF base> <first append PDF base>
+    ... <nth append PDF base>
+
+DESCRIPTION
+
+    Combine all the PDF files for a rideset.  This makes one PDF file per ride
+    in the rideset. It takes an output file name and the names of several PDF
+    files to combine.  It expects all the input and output files to end in
+    "_0.pdf", and strips these off to generate file names corresponding to each
+    ride in the rideset.
+
+    -i INFILE, --infile=INFILE
+        SABX 1.0 file to read data from
+
+    -m, --man
+        print this extended help and exit
+
+    -h, --help
+        print basic help and exit
+
+AUTHOR
+
+    Jay Farrimond
+
+REPORTING BUGS
+
+    Report bugs to <jay@sabikerides.com>
+
+SEE ALSO
+
+    The complete specification for SABX 1.0 files is available at 
+    http://www.sabikerides.com/sabx/1/0/
+
+    The library that this utility is built on (sabx-lib) is available at
+    http://www.sabikerides.com/sabx/lib/index.html
+
+COPYRIGHT
+
+    sabx10 - an SABX file manipulation library
+    Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+
+    This file is part of sabx10.
+
+    sabx10 is free software: you can redistribute it and/or modify it under the
+    terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later
+    version.
+
+    sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+    details.
+
+    You should have received a copy of the GNU General Public License along
+    with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+"""
+import getopt
+import os.path
+import sys
+
+from pyPdf import PdfFileWriter, PdfFileReader
+
+from sabx10.oxm import parse_no_def_namespaces, process_rides
+
+def combine_pdfs(index, pdf_out, pdfs_in):
+    output = PdfFileWriter()
+    for pdf in pdfs_in:
+        filename = "%s_%s.pdf" % (pdf, index)
+        input = PdfFileReader(file(filename, "rb"))
+        for page in input.pages:
+            output.addPage(page)
+    filename = "%s_%s.pdf" % (pdf_out, index)
+    outputStream = file(filename, "wb")
+    output.write(outputStream)
+    outputStream.close()
+
+def strip_file_name(filename):
+    dir, base = os.path.split(filename)
+    t = base.split('_')
+    base = "_".join(base.split('_')[:-1])
+    return os.path.join(dir, base)
+
+def usage():
+    print """usage: sabx_pdf_combine [Options] <output PDF base> <first append PDF base> ... <nth append PDF base>
+
+Options:
+  -i, --infile            SABX file to read data from
+  -h, --help              show this help message and exit
+  -m, --man-page          display the man page and exit"""
+
+def handle_options():
+    # get the options
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hmi:", 
+                                   ["help", "man-page", "infile="])
+    except getopt.GetoptError, err:
+        print str(err)
+        usage()
+        sys.exit(2)
+
+    # process the optional arguments
+    xml_in = sys.stdin
+    for o, a in opts:
+        if o in ("-i", "--infile"):
+            xml_in = a
+        elif o in ("-h", "--help"):
+            usage()
+            sys.exit(0)
+        elif o in ("-m", "--man-page"):
+            print __doc__
+            sys.exit(0)
+        else:
+            usage()
+            sys.exit(2)
+
+    # make sure we have enough arguments
+    if len(args) < 2:
+        usage()
+        sys.exit(2)
+
+    # handle the rest of the arguments
+    pdf_out = strip_file_name(args[0])
+    pdfs_in = [strip_file_name(pdf) for pdf in args[1:]]
+    return xml_in, pdf_out, pdfs_in
+
+if __name__ == '__main__':
+    try:
+        xml_in, pdf_out, pdfs_in = handle_options()
+        xml_tree = parse_no_def_namespaces(xml_in)
+        ride_list, bounds = process_rides(xml_tree)
+        for ride in ride_list:
+            combine_pdfs(ride.index, pdf_out, pdfs_in)
+    except Exception as exc:
+        print "ERROR ENCOUNTERED: %s" % exc
+        sys.exit(2)

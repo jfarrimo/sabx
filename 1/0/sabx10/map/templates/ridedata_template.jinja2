@@ -1,0 +1,172 @@
+{#############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# sabx10 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+#############################################################################
+#
+# This template is used for generating the data file for a ride.
+#
+#############################################################################}
+var ride_data = {
+    title: "{{ title }}", 
+    ride_count: {{ rides|length() }}, 
+    ride_type: "{{ ride_type }}",
+    filebase: "{{ filebase }}"};
+
+{###########}
+{# PARKING #}
+{###########}
+var parking = [
+{% set comma = joiner(",") %}
+{% for ride in rides %}
+  {{ comma() }}
+  {html: "<span class=\'parking-title\'>Parking</span><p />{{ ride.parking.description }}",
+  lat: {{ ride.parking.lat }},
+  lon: {{ ride.parking.lon }}}
+{% endfor %}
+];
+
+{##########}
+{# BOUNDS #}
+{##########}
+var ride_bounds = [
+{% set comma = joiner(",") %}
+{% for ride in rides %}
+  {{ comma() }}
+  {min_lat: {{ ride.bounds.min_lat }},
+  min_lon: {{ ride.bounds.min_lon }},
+  max_lat: {{ ride.bounds.max_lat }},
+  max_lon: {{ ride.bounds.max_lon }}}
+{% endfor %}
+];
+
+{#########}
+{# STOPS #}
+{#########}
+var stops = [
+{% set comma = joiner(",") %}
+{% for ride in rides %}
+   {{ comma() }}
+   [
+{%   set inner_comma = joiner(",") %}
+{%   for stop in ride.stops %}
+{%     set dist_comma = joiner(",") %}
+   {{ inner_comma() }}
+   {html: "<span class=\'stop-title\'>Stop</span><p />{{ stop.description }}<p /><span class=\'stop-label\'>Type:</span> {{ stop.type }}<br /><span class=\'stop-label\'>Ride Distance:</span>
+{%- for stop_dist in ride.stop_dists[stop.id] %}
+{{ dist_comma() }} {{ "%.1f" | format(stop_dist[0]) }}
+{%- if stop_dist[1] >= 0.1 %}
+ ({{ "%.1f" | format(stop_dist[1]) }} off route)
+{%- endif %}
+{% endfor %}
+<br />",
+   lat: {{ stop.lat }},
+   lon: {{ stop.lon }}}
+{%   endfor %}
+   ]
+{% endfor %}
+];
+
+{########}
+{# POIS #}
+{########}
+var pois = [
+{% set comma = joiner(",") %}
+{% for ride in rides %}
+   {{ comma() }}
+   [
+{%   set inner_comma = joiner(",") %}
+{%   for poi in ride.pois %}
+{%     set dist_comma = joiner(",") %}
+   {{ inner_comma() }}
+   {html: "<span class=\'poi-title\'>Point of Interest</span><p />{{ poi.description }}<p /><br /><span class=\'poi-label\'>Ride Distance:</span> 
+{%- for poi_dist in ride.poi_dists[poi.id] %}
+{{ dist_comma() }} {{ "%.1f" | format(poi_dist[0]) }}
+{%- if poi_dist[1] >= 0.1 %}
+ ({{ "%.1f" | format(poi_dist[1]) }} off route)
+{%- endif %}
+{%- endfor %}
+<br />",
+   lat: {{ poi.lat }},
+   lon: {{ poi.lon }}}
+{%   endfor %}
+   ]
+{% endfor %}
+];
+
+{############}
+{# SEGMENTS #}
+{############}
+var segments = [
+{% set comma = joiner(",") %}
+{% for ride in rides %}
+   {{ comma() }}
+   [
+{%   set ride_index = loop.index0 %}
+{%   set inner_comma = joiner(",") %}
+{%   for turn in ride.turns %}
+{%     set seg = ride.segs[loop.index0] %}
+     {{ inner_comma() }}
+     {
+     turnHtml : "<span class=\'turn-title\'>{{ turn.fromto }}</span><p /><span class=\'turn-subtitle\'>{{ turn.cue }}</span><p />{{ turn.comments }}<p /><span class=\'turn-label\'>turn-at distance</span>: {{ "%.2f" | format(turn.distance) }} miles",
+     roadHtml: "<span class=\'seg-title\'>{{ seg.road }}</span><p />{{ seg.comments|replace('\n', '') }}<p /><span class=\'seg-label\'>distance</span>: {{ "%.2f" | format(seg.length) }} miles<br /><span class=\'seg-label\'>lanes</span>: {{ seg.lanes }}<br /><span class=\'seg-label\'>shoulder</span>: {{ seg.shoulder }}<br /><span class=\'seg-label\'>traffic</span>: {{ seg.traffic }}<br /><span class=\'seg-label\'>speed</span>: {{ seg.speed }}",
+     profileHtml: "<img src=\'{{ seg.profile_small }}\' />",
+     polyline : {
+       color: "#FF0000",
+{% if ride_type == 'mtb' %}
+       weight: 2,
+{% else %}
+       weight: 3,
+{% endif %}
+       points: "{{ seg.encoded_points | replace('\\', '\\\\') }}",
+       levels: "{{ seg.encoded_levels | replace('\\', '\\\\') }}",
+       zoomFactor: {{ zoom_factor }},
+       numLevels: {{ zoom_levels }}
+       },
+     mid_lat: {{ seg.mid_lat }},
+     mid_lon: {{ seg.mid_lon }}
+     }
+{%   endfor %}
+   ]
+{% endfor %}
+];
+
+{#########}
+{# TURNS #}
+{#########}
+var turns = [
+{% set comma = joiner(",") %}
+{% for ride in rides %}
+   {{ comma() }}
+   [
+{%   set inner_comma = joiner(",") %}
+{%   for turn in ride.turns %}
+{%     set seg = ride.segs[loop.index0] %}
+     {{ inner_comma() }}
+     {
+     html : "<span class=\'turn-title\'>{{ turn.fromto }}</span><p /><span class=\'turn-subtitle\'>{{ turn.cue }}</span><p />{{ turn.comments }}<p /><span class=\'turn-label\'>turn-at distance</span>: {{ "%.2f" | format(turn.distance) }} miles",
+     icon: "{{ "%.1f" | format(turn.distance) }}.png",
+     min_zoom: {{ turn.min_zoom }},
+     lat: {{ turn.lat }},
+     lon: {{ turn.lon }}
+     }
+{%   endfor %}
+   ]
+{% endfor %}
+];

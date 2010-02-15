@@ -1,0 +1,96 @@
+============
+SABX Library
+============
+
+Contact:
+Jay Farrimond
+jay@sabikerides.com
+http://www.sabikerides.com/
+
+Overview
+========
+
+This is a library that contains everything necessary to create, modify, and
+make maps from SABX files.  SABX files contain data describing a bicycle ride.
+This includes things like stops, turns, directions, waypoints, photos, and
+other minutia.
+
+Currently, the SABX file format is at version 1.0.  As new versions come out,
+new versions of the library will be added and old versions will be preserved.
+I do this because I don't expect everyone using SABX files to upgrade all at
+once when the format changes.
+
+In order to accomodate multiple file versions, I've created this project using
+the following directory structure:
+
+sabx/
+  1/
+    0/
+
+Everything for version 1.0 of the SABX format is under the path sabx/1/0/. When
+version 1.1 of the library is created, it will be under sabx/1/1/.  When
+version 2.0 of the library is created, it will be under sabx/2/0/.  And so on
+until development ceases.
+
+The version 1.0 format library is a Python package called sabx10.  It lives in
+sabx/1/0/sabx10.  All the supporting files for it are in sabx/1/0.
+
+Related Items
+=============
+
+The SABX project is described here:
+http://www.sabikerides.com/testing/sabx/index.html
+
+The SABX 1.0 file format is more fully described at
+http://www.sabikerides.com/sabx/1/0/index.html
+
+The sabx10 library is described here:
+http://www.sabikerides.com/testing/sabx/1/0/sabx10.html
+
+Copyright
+=========
+
+The sabx10 package is broken into two parts for licensing.  The sub-package
+sabx10.oxm is licensed under the less-restrictive Lesser GPLv3 license, while
+the rest of the sabx10 package is licensed under the the regular GPLv3 license.
+This is so that the sabx10.oxm code can be more easily used by other projects,
+while the rest of sabx10 will be extended, rather than consumed.
+
+sabx10
+------
+
+sabx10 - an SABX file manipulation library
+Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+
+sabx10 is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+sabx10.  If not, see http://www.gnu.org/licenses/.
+
+sabx10.oxm
+----------
+
+The sabx10.oxm package constitutes sabx10.oxm.
+
+sabx10.oxm - an SABX file manipulation library
+Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+
+sabx10.oxm is free software: you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+sabx10.oxm is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with sabx10.oxm.  If not, see http://www.gnu.org/licenses/.

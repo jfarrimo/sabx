@@ -1,0 +1,105 @@
+#!/usr/bin/python
+###############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+###############################################################################
+"""
+NAME
+
+    tcx2sabx - convert a TCX file to an SABX 1.0 file
+
+SYNOPSIS
+
+    tcx2sabx [OPTION]
+
+DESCRIPTION
+
+    Convert a TCX file to a skeleton SABX 1.0 file.  The skeleton file will
+    only have filled-in data for uuid, title, parking lat and lon, and points
+    for a segment. All other SABX 1.0 elements are blank.  There will be a ride
+    with references to the parking, a blank turn, and the segment.  This gives
+    you enough information to generate a basic map with no labels, but won't
+    give you an SABX 1.0 file that will validate.  Basically, this gets you
+    started converting your TCX file into a full-fledged SABX 1.0 file.  You'll
+    then have to fill-in the rest of the SABX 1.0 file.
+
+    -i INFILE, --infile=INFILE
+        GPX file to read from
+
+    -o OUTFILE, --outfile=OUTFILE
+        SABX 1.0 file to write to
+
+    -n INDEX, --index=INDEX
+        index to start numbering waypoints with
+
+    -m, --man
+        print this extended help and exit
+
+    -h, --help
+        print basic help and exit
+
+AUTHOR
+
+    Jay Farrimond
+
+REPORTING BUGS
+
+    Report bugs to <jay@sabikerides.com>
+
+SEE ALSO
+
+    The complete specification for SABX 1.0 files is available at 
+    http://www.sabikerides.com/sabx/1/0/
+
+    The library that this utility is built on (sabx-lib) is available at
+    http://www.sabikerides.com/sabx/lib/index.html
+
+COPYRIGHT
+
+    sabx10 - an SABX file manipulation library
+    Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+
+    This file is part of sabx10.
+
+    sabx10 is free software: you can redistribute it and/or modify it under the
+    terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later
+    version.
+
+    sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+    details.
+
+    You should have received a copy of the GNU General Public License along
+    with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+import os.path
+import sys
+
+from sabx10.utils import TcxProcessor, determine_path
+
+if __name__ == '__main__':
+    template = os.path.join(determine_path(), 'templates', 'points_sabx10.jinja2')
+    try:
+        TcxProcessor(template, __doc__).process()
+    except Exception as exc:
+        print "ERROR ENCOUNTERED: %s" % exc
+        sys.exit(2)

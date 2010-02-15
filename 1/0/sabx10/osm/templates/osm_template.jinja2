@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+{#############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# sabx10 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+#############################################################################
+#
+# This template is used for generating the OSM XML format data file for a ride.
+#
+#############################################################################}
+<osm version="0.6" generator="OpenStreetMap server">
+  <bounds minlat="{{ bounds.min_lat }}" minlon="{{ bounds.min_lon }}" maxlat="{{ bounds.max_lat }}" maxlon="{{ bounds.max_lon }}"/>
+
+{# ******************************************* #}
+{# segment nodes                               #}
+{# ******************************************* #}
+{% for seg in seg_list %}
+{%   for point in seg.waypoints %}
+  <node id="{{ point.id }}" lat="{{ point.lat }}" lon="{{ point.lon }}" visible="true">
+  </node>
+{%   endfor %}
+{% endfor %}
+
+{# ******************************************* #}
+{# rides                                       #}
+{# ******************************************* #}
+{% for ride in rides %}
+
+{# logo #}
+{#   <node id="{{ ride.logo_node.id }}"  #}
+{# 	lat="{{ ride.logo_node.lat }}"  #}
+{# 	lon="{{ ride.logo_node.lon }}" visible="true"> #}
+{#     <tag k="type" v="logo"/> #}
+{#     <tag k="route" v="{{ ride.index }}"/> #}
+{#     <tag k="text" v="{{ ride.url_node.text }}"/> #}
+{#   </node> #}
+
+{# legend #}
+  <node id="{{ ride.title_node.id }}" 
+	lat="{{ ride.title_node.lat }}" 
+	lon="{{ ride.title_node.lon }}" visible="true">
+    <tag k="type" v="key_title"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="text" v="{{ ride.title_node.text }}"/>
+  </node>
+  <node id="{{ ride.dist_node.id }}" 
+	lat="{{ ride.dist_node.lat }}" 
+	lon="{{ ride.dist_node.lon }}" visible="true">
+    <tag k="type" v="key_dist"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="text" v="{{ ride.dist_node.text }}"/>
+  </node>
+  <node id="{{ ride.url_node.id }}" 
+	lat="{{ ride.url_node.lat }}" 
+	lon="{{ ride.url_node.lon }}" visible="true">
+    <tag k="type" v="key_url"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="text" v="{{ ride.url_node.text }}"/>
+  </node>
+  <node id="{{ ride.park_node.id }}" 
+	lat="{{ ride.park_node.lat }}" 
+	lon="{{ ride.park_node.lon }}" visible="true">
+    <tag k="type" v="key_park"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="text" v="{{ ride.park_node.text }}"/>
+  </node>
+  <node id="{{ ride.turn_node.id }}" 
+	lat="{{ ride.turn_node.lat }}" 
+	lon="{{ ride.turn_node.lon }}" visible="true">
+    <tag k="type" v="key_turn"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="text" v="{{ ride.turn_node.text }}"/>
+  </node>
+  <node id="{{ ride.stop_node.id }}" 
+	lat="{{ ride.stop_node.lat }}" 
+	lon="{{ ride.stop_node.lon }}" visible="true">
+    <tag k="type" v="key_stop"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="text" v="{{ ride.stop_node.text }}"/>
+  </node>
+  <node id="{{ ride.poi_node.id }}" 
+	lat="{{ ride.poi_node.lat }}" 
+	lon="{{ ride.poi_node.lon }}" visible="true">
+    <tag k="type" v="key_poi"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="text" v="{{ ride.poi_node.text }}"/>
+  </node>
+
+{# zoomed-in pois #}
+{%   for poi in ride.zoom_in_pois %}
+  <node id="{{ poi.node_id }}" lat="{{ poi.lat }}" lon="{{ poi.lon }}" visible="true">
+    <tag k="type" v="poi"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="name" v="{{ poi.name }}"/>
+    <tag k="zoom" v="yes"/>
+  </node>
+{%   endfor %}
+
+{# zoomed-out pois #}
+{%   for poi in ride.zoom_out_pois %}
+  <node id="{{ poi.node_id }}" lat="{{ poi.lat }}" lon="{{ poi.lon }}" visible="true">
+    <tag k="type" v="poi"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="name" v="{{ poi.name }}"/>
+    <tag k="zoom" v="no"/>
+  </node>
+{%   endfor %}
+
+{# zoomed-in stops #}
+{%   for stop in ride.zoom_in_stops %}
+  <node id="{{ stop.node_id }}" lat="{{ stop.lat }}" lon="{{ stop.lon }}" visible="true">
+    <tag k="type" v="stop"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="name" v="{{ stop.name }}"/>
+    <tag k="zoom" v="yes"/>
+  </node>
+{%   endfor %}
+
+{# zoomed-out stops #}
+{%   for stop in ride.zoom_out_stops %}
+  <node id="{{ stop.node_id }}" lat="{{ stop.lat }}" lon="{{ stop.lon }}" visible="true">
+    <tag k="type" v="stop"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="name" v="{{ stop.name }}"/>
+    <tag k="zoom" v="no"/>
+  </node>
+{%   endfor %}
+
+{# zoomed-in turns #}
+{%   for turn in ride.zoom_in_turns|reverse %}
+  <node id="{{ turn.node_id }}" lat="{{ turn.lat }}" lon="{{ turn.lon }}" visible="true">
+    <tag k="type" v="turn"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="name" v="{{ turn.name }}"/>
+    <tag k="zoom" v="yes"/>
+  </node>
+{%   endfor %}
+
+{# zoomed-out turns #}
+{%   for turn in ride.zoom_out_turns %}
+  <node id="{{ turn.node_id }}" lat="{{ turn.lat }}" lon="{{ turn.lon }}" visible="true">
+    <tag k="type" v="turn"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="name" v="{{ turn.name }}"/>
+    <tag k="zoom" v="no"/>
+  </node>
+{%   endfor %}
+
+{# parking #}
+  <node id="{{ ride.parking.node_id }}" lat="{{ ride.parking.lat }}" lon="{{ ride.parking.lon }}" visible="true">
+     <tag k="type" v="parking"/>
+     <tag k="route" v="{{ ride.index }}"/>
+  </node>
+
+{# segs & points #}
+{%   for seg in ride.segs %}
+  <way id="{{ seg.way_id }}" visible="true">
+{%     for pt in seg.waypoints %}
+    <nd ref="{{ pt.id }}"/>
+{%     endfor %}
+    <tag k="type" v="segment"/>
+    <tag k="route" v="{{ ride.index }}"/>
+    <tag k="name" v="{{ seg.road }}"/>
+  </way>
+{%   endfor %}
+{% endfor %}
+</osm>

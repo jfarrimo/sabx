@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{#############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# sabx10 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+##############################################################################
+#
+# This template is used for generating a simple map file for a ride.
+#
+#############################################################################}
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
+      xmlns:v="urn:schemas-microsoft-com:vml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>{{ title }} : San Antonio Bike Rides</title>
+
+    <link rel="icon" type="image/png" href="{{ image_dir }}/favicon.png" />
+    <link rel="shortcut icon" type="image/x-icon" 
+	  href="{{ image_dir }}/favicon.ico" />
+
+    <link rel="stylesheet" type="text/css" media="all" 
+	  href="{{ css_dir }}/reset.css" />
+    <link rel="stylesheet" type="text/css" media="all" 
+	  href="{{ css_dir }}/text.css" />
+    <link rel="stylesheet" type="text/css" media="all" 
+	  href="{{ css_dir }}/smoothness/jquery-ui-1.7.2.custom.css" />
+    <link rel="stylesheet" type="text/css" media="all" 
+	  href="{{ css_dir }}/stage.css" />
+
+    <script type="text/javascript"
+	    src="http://maps.google.com/maps?file=api&amp;v=2.169&amp;key=ABQIAAAArRZNePBRmfwJkDkkRPNESRTitLe_f0f26hQB0rQ7w47bJ0GWghQJwLFzqditUQX-ubwfnxdVTzuoLQ&amp;sensor=false">
+    </script>
+    <script type="text/javascript"
+	    src="http://gmaps-utility-library.googlecode.com/svn/trunk/markermanager/1.1/src/markermanager.js">
+    </script>
+
+    <script type="text/javascript" src="{{ filebase }}.js"></script>
+
+    <script type="text/javascript" 
+	    src="{{ js_dir }}/jquery-1.3.2.min.js"></script>
+    <script type="text/javascript" 
+	    src="{{ js_dir }}/jquery-ui-1.7.2.custom.min.js"></script>
+    <script type="text/javascript" src="{{ js_dir }}/stage.js"></script>
+  </head>
+  <body>
+
+    <div id="no_js_warning">
+      If this message doesn't go away, you have javascript disabled.
+      Nothing will work correctly until you enable javascript.
+    </div>
+
+    <div id="header">
+      <div id="hdr-logo">
+	<a href="{{ base_dir }}/index.html">
+	  <img src="{{ image_dir }}/logo.png" 
+	       width="84" height="40" border="0" />
+	</a>
+      </div>
+      <div id="hdr-title">
+	<span id="header-title">{{ title }}</span>
+	<span id="header-nav">
+	  <a href="{{ base_dir }}/index.html">Home</a>
+	</span>
+	<span id="header-rides">
+{% for ride in rides %}
+{%   if loop.first %}
+          <a class="header-ride-{{ loop.index0 }} header-ride-sel"
+{%-   else %}
+	  <a class="header-ride-{{ loop.index0 }} header-ride-unsel"
+{%-   endif %}
+ href="">{{ "%.1f" | format(ride.distance) }} miles</a> 
+{% endfor %}
+	</span>
+      </div>
+    </div>
+
+    <div id="map">
+      <div id="map-toggles">
+	<form action="">
+	  <div>
+	    <input type="submit" id="map-rezoom" value="Reset Map" /> 
+	  </div>
+	</form>
+      </div>
+      <div id="map-canvas"></div>
+    </div>
+
+    <div id="sab-copyright">
+      All images, text, and HTML Copyright &#169; 2003, 2009, 2010 by Farrimond
+      Technologies, LLC
+    </div>
+
+  </body>
+</html>

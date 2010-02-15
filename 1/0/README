@@ -1,0 +1,161 @@
+==============
+SABX10 Library
+==============
+
+v1.0, 1/28/2010
+
+Contact:
+Jay Farrimond
+jay@sabikerides.com
+http://www.sabikerides.com/
+
+Overview
+========
+
+This is a library that contains everything necessary to create, modify, and
+make maps from SABX 1.0 files.  SABX 1.0 files contain data describing a
+bicycle ride.  This includes things like stops, turns, directions, waypoints,
+photos, and other minutia.
+
+Currently, the SABX format is at version 1.0.  As new versions come out, new
+versions of the library will be added and old versions will be preserved.  I do
+this because I don't expect everyone using SABX files to upgrade all at once
+when the format changes.  The version 1.0 format library is called sabx10.
+
+The oxm and templating sub-packages provide basic functionality shared by all
+the other sub-packages in sabx10. The oxm sub-package has code to read and
+parse SABX 1.0 files into a Python object hierarchy.  The templating
+sub-package has code to help in using Jinja2 templates from the command-line.
+
+The utils sub-package and its related scripts are a set of Python utilities to
+manage SABX 1.0 files.
+
+The map, osm, pdf-gen, and profiles sub-packages, and their related scripts,
+are a set of Python utilities to generate maps from SABX files.
+
+This library is currently tested under Ubuntu 9.04, which defaults to Python
+2.6.  I'm not sure how well it works under other versions of Python and other
+operating systems, so keep an eye out for errors if you're using it on anything
+other than Ubuntu 9.04 and Python 2.6.
+
+Documentation
+=============
+
+Documentation for the sabx10 package is included in the download in the
+html_docs directory.
+
+TUTORIAL.html, included in the download, gives instructions for creating and
+updating SABX files.
+
+SETUP.html, also included in the download, gives instructions for setting up
+the map-creation scripts.
+
+Documentation for each of the utilities can be accessed by invoking them with
+the "-m" command-line option.  The utilities are:
+
+gpx2sabx
+sabx2csv
+sabx2html
+sabx_cleanup
+sabx_csv
+sabx_ele_analyze
+sabx_number
+sabx_pretty
+sabx_seg_closest
+sabx_seg_reverse
+sabx_usgs
+tcx2sabx
+sabx_map_ride
+sabx_map_ridedata
+sabx_map_staging
+sabx_osm_osm
+sabx_osm_render
+sabx_osm_styles
+sabx_osm_styles_cluster
+sabx_pdf_combine
+sabx_pdf_instructions
+sabx_profiles2pdf
+sabx_profiles_plot
+
+Prerequisites
+=============
+
+The sabx10 package requires the Jinja2 Python package.
+
+Download
+========
+
+This package can be found at
+http://www.sabikerides.com/sabx/1/0/sabx10-1.0.tar.gz
+
+Installation Instructions
+=========================
+
+This is a standard Python package.  Just unpack it, then run the following
+command (you may need to run it using sudo):
+
+$ python setup.py install
+
+Once you have installed the package, the SETUP.html file (included in the
+package) contains instructions for setting-up and customizing SABX map
+creation.
+
+Related Items
+=============
+
+The SABX 1.0 file format is more fully described at
+http://www.sabikerides.com/sabx/1/0/.
+
+Change History
+==============
+
+v1.0 - 1/28/2010
+This is the initial release of the library.
+
+Copyright
+=========
+
+The sabx10 package is broken into two parts for licensing.  The sub-package
+sabx10.oxm is licensed under the less-restrictive Lesser GPLv3 license, while
+the rest of the sabx10 package is licensed under the the regular GPLv3 license.
+This is so that the sabx10.oxm code can be more easily used by other projects,
+while the rest of sabx10 will be extended, rather than subsumed.
+
+sabx10
+------
+
+sabx10 - an SABX file manipulation library
+Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+
+sabx10 is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+sabx10.  If not, see http://www.gnu.org/licenses/.
+
+sabx10.oxm
+----------
+
+The sabx10.oxm package constitutes sabx10.oxm.
+
+sabx10.oxm - an SABX file manipulation library
+Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+
+sabx10.oxm is free software: you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+sabx10.oxm is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with sabx10.oxm.  If not, see http://www.gnu.org/licenses/.

@@ -1,0 +1,77 @@
+{#############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# sabx10 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+#############################################################################
+#
+# This template is used for taking simple point lists and creating a map
+# page utilizing Google Maps to display the individual points. A title
+# is also expected.
+#
+#############################################################################}
+<!DOCTYPE html "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>{{ title }}</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAArRZNePBRmfwJkDkkRPNESRTitLe_f0f26hQB0rQ7w47bJ0GWghQJwLFzqditUQX-ubwfnxdVTzuoLQ&sensor=false"
+            type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+    points = [
+    {% set comma = joiner(",") %}
+    {% for point in points -%}
+    {{ comma() }}[{{ point['index'] }},{{ point['lat'] }},{{ point['lon'] }}]
+    {% endfor -%}
+    ];
+
+    </script>
+
+    <script type="text/javascript">
+
+    function createMarker(map, point, number) {
+      var marker = new GMarker(point);
+      GEvent.addListener(marker, "click", function() {
+        var myHtml = "<b>#" + number + "</b>";
+        map.openInfoWindowHtml(point, myHtml);
+      });
+      return marker;
+    }
+
+    function initialize() {
+      if (GBrowserIsCompatible()) {
+        var map = new GMap2(document.getElementById("map_canvas"));
+        map.setCenter(new GLatLng(points[0][1], points[0][2]), 12);
+        map.setUIToDefault();
+
+        for (var i = 0; i < points.length; i++) {
+          var point = new GLatLng(points[i][1], points[i][2]);
+          map.addOverlay(createMarker(map, point, points[i][0]));
+        }
+      }
+    }
+
+    </script>
+  </head>
+  <body onload="initialize()" onunload="GUnload()">
+    <div id="map_canvas" style="height: 900px"></div>
+  </body>
+</html>

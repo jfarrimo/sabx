@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <style type="text/css">
+      body {font-family: Verdana, Arial, sans-serif;}
+      table {border-collapse:collapse;}
+      table, tr, td, th {border: 1px solid;}
+      #body_div {margin-left: auto; margin-right: auto; 
+      border: 0; padding: 0; max-width: 960px;}
+    </style>
+    <title>SABX10 Library</title>
+  </head>
+  <body>
+    <div id="body_div">
+      <h1>SABX10 Library</h1>
+      <p>
+	v1.0, 2010-1-28
+      </p>
+      <p>
+	Contact:<br />
+	Jay Farrimond<br />
+	jay@sabikerides.com<br />
+	<a href="http://www.sabikerides.com/">http://www.sabikerides.com/</a>
+      </p>
+      <h2>Table of Contents</h2>
+      <ol>
+	<li><a href="#overview">Overview</a></li>
+	<li><a href="#docs">Documentation</a>
+	  <ul>
+	    <li><a href="html_docs/index.html">html_docs</a></li>
+	    <li><a href="tutorial.html">TUTORIAL.html</a></li>
+	    <li>manipulation utilities
+	      <ul>
+		<li><a href="gpx2sabx.html">gpx2sabx</a></li>
+		<li><a href="sabx2csv.html">sabx2csv</a></li>
+		<li><a href="sabx2html.html">sabx2html</a></li>
+		<li><a href="sabx_cleanup.html">sabx_cleanup</a></li>
+		<li><a href="sabx_csv.html">sabx_csv</a></li>
+		<li><a href="sabx_ele_analyze.html">sabx_ele_analyze</a></li>
+		<li><a href="sabx_number.html">sabx_number</a></li>
+		<li><a href="sabx_pretty.html">sabx_pretty</a></li>
+		<li><a href="sabx_seg_closest.html">sabx_seg_closest</a></li>
+		<li><a href="sabx_seg_reverse.html">sabx_seg_reverse</a></li>
+		<li><a href="sabx_usgs.html">sabx_usgs</a></li>
+		<li><a href="tcx2sabx.html">tcx2sabx</a></li>
+	      </ul>
+	    </li>
+	    <li><a href="setup.html">SETUP.html</a></li>
+	    <li>map creation utilities
+	      <ul>
+		<li><a href="sabx_map_ride.html">sabx_map_ride</a></li>
+		<li><a href="sabx_map_ridedata.html">sabx_map_ridedata</a></li>
+		<li><a href="sabx_map_staging.html">sabx_map_staging</a></li>
+		<li><a href="sabx_osm_osm.html">sabx_osm_osm</a></li>
+		<li><a href="sabx_osm_render.html">sabx_osm_render</a></li>
+		<li><a href="sabx_osm_styles.html">sabx_osm_styles</a></li>
+		<li><a href="sabx_osm_styles_cluster.html">sabx_osm_styles_cluster</a></li>
+		<li><a href="sabx_pdf_combine.html">sabx_pdf_combine</a></li>
+		<li><a href="sabx_pdf_instructions.html">sabx_pdf_instructions</a></li>
+		<li><a href="sabx_profiles2pdf.html">sabx_profiles2pdf</a></li>
+		<li><a href="sabx_profiles_plot.html">sabx_profiles_plot</a></li>
+	      </ul>
+	    </li>
+	  </ul>
+	</li>
+	<li><a href="#prereq">Prerequisites</a>
+	  <ul>
+	    <li><a href="http://jinja.pocoo.org/2/">Jinja2</a></li>
+	  </ul>
+	</li>
+	<li><a href="#download">Download</a>
+	  <ul>
+	    <li><a href="sabx10-1.0.tar.gz">sabx10-1.0.tar.gz</a></li>
+	  </ul>
+	</li>
+	<li><a href="#install">Installation Instructions</a></li>
+	<li><a href="#related">Related Items</a>
+	  <ul>
+	    <li><a href="index.html">SABX 1.0 File Format</a></li>
+	  </ul>
+	</li>
+	<li><a href="#history">Change History</a></li>
+	<li><a href="#copyright">Copyrights</a></li>
+      </ol>
+      <h2 id="overview">1. Overview</h2>
+      <p>
+	This is a library that contains everything necessary to create, modify,
+	and make maps from SABX 1.0 files.  SABX 1.0 files contain data
+	describing a bicycle ride.  This includes things like stops, turns,
+	directions, waypoints, photos, and other minutia.
+      </p>
+      <p>
+	Currently, the SABX format is at version 1.0.  As new versions come
+	out, new versions of the library will be added and old versions will be
+	preserved.  I do this because I don't expect everyone using SABX files
+	to upgrade all at once when the format changes.  The version 1.0 format
+	library is called sabx10.
+      </p>
+      <p>
+	The oxm and templating sub-packages provide basic functionality shared
+	by all the other sub-packages in sabx10. The oxm sub-package has code
+	to read and parse SABX 1.0 files into a Python object hierarchy.  The
+	templating sub-package has code to help in using Jinja2 templates from
+	the command-line.
+      </p>
+      <p>
+	The utils sub-package and its related scripts are a set of Python
+	utilities to manage SABX 1.0 files.
+      </p>
+      <p>
+	The map, osm, pdf-gen, and profiles sub-packages, and their related
+	scripts, are a set of Python utilities to generate maps from SABX
+	files.
+      </p>
+      <p>
+	This library is currently developed and tested under Ubuntu 9.04, which
+	defaults to Python 2.6.2.  I'm not sure how well it works under other
+	versions of Python and other operating systems, so keep an eye out for
+	errors if you're using it on anything other than Ubuntu 9.04 and Python
+	2.6.
+      </p>
+      <h2 id="docs">2. Documentation</h2>
+      <p>
+	Documentation for the sabx10 package is in the
+	<a href="html_docs/index.html">html_docs</a> directory included in the
+	download and is also reproduced here.
+      </p>
+      <p>
+	The file <a href="tutorial.html">TUTORIAL.html</a> is a tutorial on
+	creating and updating SABX files.  It's included in the download
+	as well as being reproduced here.
+      </p>
+      <p>
+	Documentation for each of the file manipulation utilities can be
+	accessed by invoking them with the "-m" command-line option.  It is
+	also reproduced here for your convenience.
+      </p>
+      <ul>
+	<li><a href="gpx2sabx.html">gpx2sabx</a></li>
+	<li><a href="sabx2csv.html">sabx2csv</a></li>
+	<li><a href="sabx2html.html">sabx2html</a></li>
+	<li><a href="sabx_cleanup.html">sabx_cleanup</a></li>
+	<li><a href="sabx_csv.html">sabx_csv</a></li>
+	<li>
+	  <a href="sabx_ele_analyze.html">sabx_ele_analyze</a>
+	</li>
+	<li><a href="sabx_number.html">sabx_number</a></li>
+	<li><a href="sabx_pretty.html">sabx_pretty</a></li>
+	<li>
+	  <a href="sabx_seg_closest.html">sabx_seg_closest</a>
+	</li>
+	<li>
+	  <a href="sabx_seg_reverse.html">sabx_seg_reverse</a>
+	</li>
+	<li><a href="sabx_usgs.html">sabx_usgs</a></li>
+	<li><a href="tcx2sabx.html">tcx2sabx</a></li>
+      </ul>
+      <p>
+	The file <a href="setup.html">SETUP.html</a> is a setup guide for the
+	map-creation scripts.  It's also included in the download.
+      </p>
+      <p>
+	Documentation for each of the map creation utilities can be accessed by
+	invoking them with the "-m" command-line option.  It is also reproduced
+	here for your convenience.
+      </p>
+      <ul>
+	<li><a href="sabx_map_ride.html">sabx_map_ride</a></li>
+	<li><a href="sabx_map_ridedata.html">sabx_map_ridedata</a></li>
+	<li><a href="sabx_map_staging.html">sabx_map_staging</a></li>
+	<li><a href="sabx_osm_osm.html">sabx_osm_osm</a></li>
+	<li><a href="sabx_osm_render.html">sabx_osm_render</a></li>
+	<li><a href="sabx_osm_styles.html">sabx_osm_styles</a></li>
+	<li>
+	  <a href="sabx_osm_styles_cluster.html">sabx_osm_styles_cluster</a>
+	</li>
+	<li><a href="sabx_pdf_combine.html">sabx_pdf_combine</a></li>
+	<li><a href="sabx_pdf_instructions.html">sabx_pdf_instructions</a></li>
+	<li><a href="sabx_profiles2pdf.html">sabx_profiles2pdf</a></li>
+	<li><a href="sabx_profiles_plot.html">sabx_profiles_plot</a></li>
+      </ul>
+      <h2 id="prereq">3. Prerequisites</h2>
+      <p>
+	The sabx10 package requires the 
+	<a href="http://jinja.pocoo.org/2/">Jinja2</a> Python package.
+      </p>
+      <h2 id="download">4. Download</h2>
+      <p>
+	<a href="sabx10-1.0.tar.gz">sabx10-1.0.tar.gz</a>
+      </p>
+      <h2 id="install">5. Installation Instructions</h2>
+      <p>
+	This is a standard Python package.  Just unpack it, then run the
+	following command (you may need to run it using <em>sudo</em>):
+      </p>
+      <p><code>$ sudo python setup.py install</code></p>
+      <p>
+	Once you have installed the package, the 
+	<a href="setup.html">SETUP.html</a> file (included in the package)
+	contains instructions for setting-up and customizing SABX map creation.
+      </p>
+      <h2 id="related">6. Related Items</h2>
+      <p>
+	The SABX 1.0 file format is described <a href="index.html">here</a>.
+      </p>
+      <h2 id="history">7. Change History</h2>
+      <table>
+	<tr>
+	  <th>Version</th><th>Date</th><th>Description</th>
+	</tr>
+	<tr>
+	  <td>v1.0</td>
+	  <td>1/28/2010</td>
+	  <td>This is the initial release of the library.</td>
+	</tr>
+      </table>
+      <h2 id="copyright">8. Copyrights</h2>
+      <p>
+	The sabx10 package is broken into two parts for licensing.  The
+	sub-package sabx10.oxm is licensed under the less-restrictive Lesser
+	GPLv3 license, while the rest of the sabx10 package is licensed under
+	the the regular GPLv3 license.  This is so that the sabx10.oxm code can
+	be more easily used by other projects, while the rest of sabx10 will be
+	extended, rather than subsumed.
+      </p>
+      <h3>sabx10</h3>
+      <p>
+	sabx10 - an SABX file manipulation library<br/>
+	Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+      </p>
+      <p>
+	This file is part of sabx10.
+      </p>
+      <p>
+	sabx10 is free software: you can redistribute it and/or modify it
+	under the terms of the GNU General Public License as published by the
+	Free Software Foundation, either version 3 of the License, or (at your
+	option) any later version.
+      </p>
+      <p>
+	sabx10 is distributed in the hope that it will be useful, but WITHOUT
+	ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+	FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+	for more details.
+      </p>
+      <p>
+	You should have received a copy of the GNU General Public License along
+	with sabx10.  If not, see
+	<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
+      </p>
+      <h3>sabx10.oxm</h3>
+      <p>
+	The sabx10.oxm package constitutes sabx10.oxm.
+      </p>
+      <p>
+	sabx10.oxm - an SABX file manipulation library<br />
+	Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+      </p>
+      <p>
+	sabx10.oxm is free software: you can redistribute it and/or modify it
+	under the terms of the GNU Lesser General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+      </p>
+      <p>
+	sabx10.oxm is distributed in the hope that it will be useful, but
+	WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Lesser General Public License for more details.
+      </p>
+      <p>
+	You should have received a copy of the GNU Lesser General Public
+	License along with sabx10.oxm.  If not, see
+	<a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
+      </p>
+    </div>
+
+    <script type="text/javascript">
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+      try {
+      var pageTracker = _gat._getTracker("UA-5976382-7");
+      pageTracker._trackPageview();
+      } catch(err) {}
+    </script>
+
+  </body>
+</html>

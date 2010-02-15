@@ -1,0 +1,232 @@
+<?xml version='1.0' encoding='utf-8'?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	   xmlns:sabx="http://www.sabikerides.com/SABX/1/0"
+	   targetNamespace="http://www.sabikerides.com/SABX/1/0"
+	   elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+  <xs:simpleType name="id">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[^\s]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="description">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded"
+                processContents="skip"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="comments" type="xs:string" />
+  <xs:element name="title" type="xs:string" />
+  <xs:element name="version" type="xs:positiveInteger" />
+  <xs:element name="fromto" type="xs:string" />
+
+  <xs:element name="lat">
+    <xs:simpleType>
+      <xs:restriction base="xs:decimal">
+	<xs:minInclusive value="-90.0"/>
+	<xs:maxInclusive value="90.0"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="lon">
+    <xs:simpleType>
+      <xs:restriction base="xs:decimal">
+	<xs:minInclusive value="-180.0"/>
+	<xs:maxInclusive value="180.0"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="photos">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="sabx:title" />
+	<xs:element name="src" type="xs:anyURI" />
+	<xs:element name="photo" minOccurs="0" maxOccurs="unbounded">
+	  <xs:complexType>
+	    <xs:sequence>
+	      <xs:element name="desc" type="xs:string" />
+	      <xs:element name="href" type="xs:anyURI" />
+	    </xs:sequence>
+	  </xs:complexType>
+	</xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="parking">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="sabx:description" />
+	<xs:element ref="sabx:lat" />
+	<xs:element ref="sabx:lon" />
+      </xs:sequence>
+      <xs:attribute name="id" type="sabx:id" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="turn">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="sabx:fromto" />
+	<xs:element name="cue" type="xs:string" />
+	<xs:element ref="sabx:comments" />
+      </xs:sequence>
+      <xs:attribute name="id" type="sabx:id" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="waypoint">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="sabx:lat" />
+	<xs:element ref="sabx:lon" />
+	<xs:element name="ele" type="xs:decimal" />
+	<xs:element name="usgs" type="xs:decimal" minOccurs="0" maxOccurs="1" />
+      </xs:sequence>
+      <xs:attribute name="id" type="sabx:id" use="required" />
+      <xs:attribute name="stop" type="xs:string" />
+      <xs:attribute name="poi" type="xs:string" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="segment">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="road" type="xs:string" />
+	<xs:element ref="sabx:fromto" />
+	<xs:element ref="sabx:comments" />
+	<xs:element name="lanes" type="xs:string" />
+	<xs:element name="shoulder" type="xs:string" />
+	<xs:element name="traffic" type="xs:string" />
+	<xs:element name="speed" type="xs:string" />
+	<xs:element ref="sabx:waypoint" minOccurs="1" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="id" type="sabx:id" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="stop">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="type" type="xs:string" />
+	<xs:element ref="sabx:description" />
+	<xs:element ref="sabx:lat" />
+	<xs:element ref="sabx:lon" />
+      </xs:sequence>
+      <xs:attribute name="id" type="sabx:id" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="poi">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="sabx:description" />
+	<xs:element ref="sabx:lat" />
+	<xs:element ref="sabx:lon" />
+      </xs:sequence>
+      <xs:attribute name="id" type="sabx:id" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="parking_ref">
+    <xs:complexType>
+      <xs:complexContent>
+	<xs:restriction base="xs:anyType">
+	  <xs:attribute name="id" type="sabx:id" use="required" />
+	</xs:restriction>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="turn_ref">
+    <xs:complexType>
+      <xs:complexContent>
+	<xs:restriction base="xs:anyType">
+	  <xs:attribute name="id" type="sabx:id" use="required" />
+	</xs:restriction>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="segment_ref">
+    <xs:complexType>
+      <xs:complexContent>
+	<xs:restriction base="xs:anyType">
+	  <xs:attribute name="id" type="sabx:id" use="required" />
+	</xs:restriction>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ride">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element ref="sabx:description" />
+	<xs:element ref="sabx:parking_ref" />
+	<xs:sequence minOccurs="1" maxOccurs="unbounded">
+	  <xs:element ref="sabx:turn_ref" />
+	  <xs:element ref="sabx:segment_ref" />
+	</xs:sequence>
+      </xs:sequence>
+      <xs:attribute name="id" type="sabx:id" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="history">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="update" minOccurs="1" maxOccurs="unbounded">
+	  <xs:complexType>
+	    <xs:sequence>
+	      <xs:element ref="sabx:version" />
+	      <xs:element name="date" type="xs:date" />
+	      <xs:element ref="sabx:description" />
+	    </xs:sequence>
+	  </xs:complexType>
+	</xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="rideset">
+    <xs:complexType>
+      <xs:sequence>
+	<xs:element name="uuid" type="xs:string" />
+	<xs:element ref="sabx:version" />
+	<xs:element name="zip_prefix" type="xs:positiveInteger" />
+	<xs:element name="ride_type" type="xs:string" />
+	<xs:element ref="sabx:title" />
+	<xs:element ref="sabx:description" />
+	<xs:element name="terrain" type="xs:string" />
+	<xs:element ref="sabx:photos" minOccurs="0" maxOccurs="1" />
+	<xs:element ref="sabx:parking" minOccurs="1" maxOccurs="unbounded" />
+
+	<xs:choice minOccurs="2" maxOccurs="unbounded">
+	  <xs:element ref="sabx:turn" />
+	  <xs:element ref="sabx:segment" />
+	</xs:choice>
+
+	<xs:element ref="sabx:stop" minOccurs="0" maxOccurs="unbounded" />
+	<xs:element ref="sabx:poi" minOccurs="0" maxOccurs="unbounded" />
+	<xs:element ref="sabx:ride" minOccurs="1" maxOccurs="unbounded" />
+	<xs:element ref="sabx:history" />
+      </xs:sequence>
+
+      <xs:attribute name="version" use="required">
+	<xs:simpleType>
+	  <xs:restriction base="xs:string">
+	    <xs:pattern value="1.0"/>
+	  </xs:restriction>
+	</xs:simpleType>
+      </xs:attribute>
+
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

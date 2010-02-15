@@ -1,0 +1,136 @@
+#!/usr/bin/python
+###############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+###############################################################################
+"""
+NAME
+
+    sabx_profiles2pdf - convert PNG profile files into PDF files
+
+SYNOPSIS
+
+    sabx_profiles2pdf [OPTION] <output file base>
+
+DESCRIPTION
+
+    Convert the PNG profiles for a ride into PDF files.
+
+    -i INFILE, --infile=INFILE
+        SABX 1.0 file to read from
+
+    -m, --man
+        print this extended help and exit
+
+    -h, --help
+        print basic help and exit
+
+AUTHOR
+
+    Jay Farrimond
+
+REPORTING BUGS
+
+    Report bugs to <jay@sabikerides.com>
+
+SEE ALSO
+
+    The complete specification for SABX 1.0 files is available at 
+    http://www.sabikerides.com/sabx/1/0/
+
+    The library that this utility is built on (sabx-lib) is available at
+    http://www.sabikerides.com/sabx/lib/index.html
+
+COPYRIGHT
+
+    sabx10 - an SABX file manipulation library
+    Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+
+    This file is part of sabx10.
+
+    sabx10 is free software: you can redistribute it and/or modify it under the
+    terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later
+    version.
+
+    sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+    details.
+
+    You should have received a copy of the GNU General Public License along
+    with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+"""
+import getopt
+import os.path
+import sys
+
+from sabx10.oxm import parse_no_def_namespaces
+from sabx10.profiles import ride_profiles_to_pdfs
+
+def usage():
+    print """usage: sabx_profiles2pdf [Options] <profile file base> <output file base>
+
+Options:
+  -i, --infile            SABX file to read data from
+  -h, --help              show this help message and exit
+  -m, --man-page          display the man page and exit"""
+
+def handle_options():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hmi:", 
+                                   ["help", "man-page", "infile="])
+    except getopt.GetoptError, err:
+        print str(err)
+        usage()
+        sys.exit(2)
+
+    in_file = sys.stdin
+    for o, a in opts:
+        if o in ("-i", "--infile"):
+            in_file = a
+        elif o in ("-h", "--help"):
+            usage()
+            sys.exit(0)
+        elif o in ("-m", "--man-page"):
+            print __doc__
+            sys.exit(0)
+        else:
+            usage()
+            sys.exit(2)
+
+    if len(args) != 2:
+        usage()
+        sys.exit(2)
+
+    prof_dir = os.path.dirname(args[0])
+    prof_base = os.path.splitext(os.path.basename(args[0]))[0]
+    out_dir = os.path.dirname(args[1])
+    out_base = os.path.basename(args[1])
+
+    return in_file, prof_dir, prof_base, out_dir, out_base
+
+if __name__ == '__main__':
+    try:
+        in_file, prof_dir, prof_base, out_dir, out_base = handle_options()
+        tree = parse_no_def_namespaces(in_file)
+        ride_profiles_to_pdfs(tree, prof_dir, prof_base, out_dir, out_base)
+    except Exception as exc:
+        print "ERROR ENCOUNTERED: %s" % exc
+        sys.exit(2)

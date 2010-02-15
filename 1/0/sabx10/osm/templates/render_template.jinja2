@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+{#############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+#############################################################################
+#
+# This template is used for generating the rendering program for a ride.
+#
+#############################################################################}
+import mapnik
+import sys
+import Image
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import letter
+
+# render.py <stylesheet file> <output file>
+
+{% for ride in rides %}
+{# LETTER #}
+m = mapnik.Map({{ ride.bounds.pix_width|int }}, 
+               {{ ride.bounds.pix_height|int }})
+mapnik.load_map(m, "%s_%s.xml" % (sys.argv[1], {{ ride.index }})) # stylesheet
+bbox = mapnik.Envelope(mapnik.Coord({{ ride.bounds.min_lon }}, 
+                                    {{ ride.bounds.min_lat }}), 
+                       mapnik.Coord({{ ride.bounds.max_lon }}, 
+                                    {{ ride.bounds.max_lat }}))
+m.zoom_to_box(bbox) 
+map_file_name = "%s_%s.png" % (sys.argv[2], {{ ride.index }})
+mapnik.render_to_file(m, map_file_name)
+
+im = Image.open(map_file_name)
+{% if ride.bounds.pix_width > ride.bounds.pix_height %}
+im = im.rotate(90)
+{% endif %}
+im.save(map_file_name, 'PNG', dpi=({{ PPI|int }},{{ PPI|int }}))
+
+pdf_file_name = "%s_%s.pdf" % (sys.argv[2], {{ ride.index }})
+page_width, page_height = letter
+c = canvas.Canvas(pdf_file_name, pagesize=letter)
+c.drawInlineImage(im, {{ BORDER }} * inch, {{ BORDER }} * inch, 
+                  {{ WIDTH }} * inch, {{ HEIGHT }} * inch)
+c.rect({{ BORDER }} * inch, {{ BORDER }} * inch, {{ WIDTH }} * inch, 
+       {{ HEIGHT }} * inch, stroke=1, fill=0)
+
+{# ZOOM BOXES #}
+{% set col_cycle = cycler(BORDER, BORDER + (WIDTH / 2.0) ) %}
+{% set row_cycle = cycler( BORDER + (HEIGHT / 2.0), BORDER + (HEIGHT / 2.0), BORDER + HEIGHT, BORDER + HEIGHT) %}
+{% set page_cycle = cycler('c.showPage()', '', '', '') %}
+{% set tran_cycle = cycler('c.translate(0, page_height)', '', '', '') %}
+{% for cluster in ride.turn_clusters %}
+m = mapnik.Map({{ cluster.pix_width|int }}, {{ cluster.pix_height|int }})
+mapnik.load_map(m, "%s_cluster_%s.xml" % (sys.argv[1], 
+                                          {{ ride.index }})) # stylesheet
+bbox = mapnik.Envelope(mapnik.Coord({{ cluster.min_lon }}, 
+                                    {{ cluster.min_lat }}), 
+                       mapnik.Coord({{ cluster.max_lon }}, 
+                                    {{ cluster.max_lat }}))
+m.zoom_to_box(bbox) 
+map_file_name = "%s_%s_%s.png" % (sys.argv[2], {{ ride.index }}, 
+                                  {{ cluster.index }})
+mapnik.render_to_file(m, map_file_name) # output file
+
+im = Image.open(map_file_name)
+im.save(map_file_name, 'PNG', dpi=({{ PPI|int }},{{ PPI|int }}))
+{{ page_cycle.next() }}
+{{ tran_cycle.next() }}
+c.drawInlineImage(im, {{ col_cycle.current }} * inch, 
+                  -{{ row_cycle.current }} * inch, 
+                  {{ WIDTH / 2.0 }} * inch, {{ HEIGHT / 2.0 }} * inch)
+c.rect({{ col_cycle.next() }} * inch, -{{ row_cycle.next() }} * inch, 
+       {{ WIDTH / 2.0 }} * inch, {{ HEIGHT / 2.0 }} * inch, stroke=1, fill=0)
+{% endfor %}
+
+c.save()
+
+{% endfor %}

@@ -1,0 +1,67 @@
+<!ELEMENT rideset (uuid, version, zip_prefix, ride_type, 
+   title, description, terrain, photos?, parking+, (turn|segment)+,
+   stop*, poi*, ride+, history)>
+<!ATTLIST rideset version CDATA #REQUIRED>
+<!ATTLIST rideset xmlns CDATA #IMPLIED>
+<!ELEMENT uuid (#PCDATA)>
+<!ELEMENT version (#PCDATA)>
+<!ELEMENT zip_prefix (#PCDATA)>
+<!ELEMENT ride_type (#PCDATA)>
+<!ELEMENT title (#PCDATA)>
+<!ELEMENT terrain (#PCDATA)>
+
+<!ELEMENT description ANY>
+<!ELEMENT p ANY>
+
+<!ELEMENT photos (title, src, photo*)>
+<!ELEMENT src (#PCDATA)>
+<!ELEMENT photo (desc, href)>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT href (#PCDATA)>
+
+<!ELEMENT parking (description, lat, lon)>
+<!ATTLIST parking id CDATA #REQUIRED>
+<!ELEMENT lat (#PCDATA)>
+<!ELEMENT lon (#PCDATA)>
+
+<!ELEMENT turn (fromto, cue, comments)>
+<!ATTLIST turn id CDATA #REQUIRED>
+<!ELEMENT fromto (#PCDATA)>
+<!ELEMENT cue (#PCDATA)>
+<!ELEMENT comments (#PCDATA)>
+
+<!ELEMENT segment (road, fromto, comments, 
+  lanes, shoulder, traffic, speed, waypoint+)>
+<!ATTLIST segment id CDATA #REQUIRED>
+<!ELEMENT road (#PCDATA)>
+<!ELEMENT lanes (#PCDATA)>
+<!ELEMENT shoulder (#PCDATA)>
+<!ELEMENT traffic (#PCDATA)>
+<!ELEMENT speed (#PCDATA)>
+
+<!ELEMENT waypoint (lat, lon, ele, usgs?)>
+<!ATTLIST waypoint id CDATA #REQUIRED>
+<!ATTLIST waypoint stop CDATA #IMPLIED >
+<!ATTLIST waypoint poi CDATA #IMPLIED >
+<!ELEMENT ele (#PCDATA)>
+<!ELEMENT usgs (#PCDATA)>
+
+<!ELEMENT stop (type, description, lat, lon)>
+<!ATTLIST stop id CDATA #REQUIRED>
+<!ELEMENT type (#PCDATA)>
+
+<!ELEMENT poi (description, lat, lon)>
+<!ATTLIST poi id CDATA #REQUIRED>
+
+<!ELEMENT ride (description, parking_ref, (turn_ref, segment_ref)+)>
+<!ATTLIST ride id CDATA #REQUIRED>
+<!ELEMENT parking_ref EMPTY>
+<!ATTLIST parking_ref id CDATA #REQUIRED>
+<!ELEMENT turn_ref EMPTY>
+<!ATTLIST turn_ref id CDATA #REQUIRED>
+<!ELEMENT segment_ref EMPTY>
+<!ATTLIST segment_ref id CDATA #REQUIRED>
+
+<!ELEMENT history (update+)>
+<!ELEMENT update (version, date, description)>
+<!ELEMENT date (#PCDATA)>

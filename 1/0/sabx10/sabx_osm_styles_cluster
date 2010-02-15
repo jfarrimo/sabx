@@ -1,0 +1,97 @@
+#! /usr/bin/python
+###############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+###############################################################################
+"""
+NAME
+
+    sabx_osm_styles_cluster - create cluster Mapnik style sheet for SABX file
+
+SYNOPSIS
+
+    sabx_osm_styles_cluster [OPTION]
+
+DESCRIPTION
+
+    Take an SABX 1.0 file and use it to generate a Mapnik XML format style
+    sheet that will be used to render the smaller, inset-style PDF maps.  This
+    file determines what data is rendered and how the map looks.
+
+    -i INFILE, --infile=INFILE
+        SABX 1.0 file to read from
+
+    -o OUTFILE, --outfile=OUTFILE
+        HTML file to write to
+
+    -m, --man
+        print this extended help and exit
+
+    -h, --help
+        print basic help and exit
+
+AUTHOR
+
+    Jay Farrimond
+
+REPORTING BUGS
+
+    Report bugs to <jay@sabikerides.com>
+
+SEE ALSO
+
+    The complete specification for SABX 1.0 files is available at 
+    http://www.sabikerides.com/sabx/1/0/
+
+    The library that this utility is built on (sabx-lib) is available at
+    http://www.sabikerides.com/sabx/lib/index.html
+
+COPYRIGHT
+
+    sabx10 - an SABX file manipulation library
+    Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+
+    This file is part of sabx10.
+
+    sabx10 is free software: you can redistribute it and/or modify it under the
+    terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later
+    version.
+
+    sabx10 is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+    details.
+
+    You should have received a copy of the GNU General Public License along
+    with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+"""
+import os.path
+import sys
+
+from sabx10.osm import StyleProcessor, determine_path
+
+if __name__ == '__main__':
+    template = os.path.join(determine_path(), 'templates', 
+                            'styles_cluster_template.jinja2')
+    try:
+        StyleProcessor(template, __doc__).process()
+    except Exception as exc:
+        print "ERROR ENCOUNTERED: %s" % exc
+        sys.exit(2)

@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <style type="text/css">
+      body {font-family: Verdana, Arial, sans-serif;}
+      table {border-collapse:collapse;}
+      table, tr, td, th {border: 1px solid;}
+      #body_div {margin-left: auto; margin-right: auto; 
+      border: 0; padding: 0; max-width: 960px;}
+    </style>
+    <title>The SABX Project</title>
+  </head>
+  <body>
+    <div id="body_div">
+      <h1>The SABX Project</h1>
+      <h2>Table of Contents</h2>
+      <ul>
+	<li><a href="#format">SABX File Format</a>
+	  <ul><li><a href="1/0/index.html">SABX 1.0 File Format</a></li></ul>
+	</li>
+	<li><a href="#foundation">Foundation Code</a></li>
+	<li><a href="#utilities">Utilities</a></li>
+	<li><a href="#maps">Map Generation</a></li>
+	<li><a href="#sabx10">SABX10 Library</a>
+	  <ul><li><a href="1/0/sabx10.html">sabx10</a></li></ul>
+	</li>
+      </ul>
+      <p>
+	I've been an avid bicyclist for many years.  I will quite often travel
+	to ride, or try to ride while I'm traveling.  I always run into the
+	problem of figuring out where to ride when I travel.  Sometimes I'll
+	find good maps, but most often they are either poor or non-existent.
+      </p>
+      <p>
+	This started me thinking that someone traveling to my city might have
+	the same problems I have.  Since I've ridden so much around my town, I
+	decided it might be nice for me to make and share maps of the good
+	local rides.
+      </p>
+      <p>
+	In the course of building the maps, I generated a lot of software to
+	help in the process.  I'm now open sourcing it so that anyone else can
+	use it.
+      </p>
+      <p>
+	The site itself is 
+	<a href="http://www.sabikerides.com/">SABikeRides.com</a>.  I'm not
+	open-sourcing the actual ride data I've developed, just the software I
+	use to maintain the data and turn it into maps.
+      </p>
+      <p>
+	By the way, I like programming in Python, so most of the software to
+	support the sited was written in Python.  The exceptions are (of
+	course) the parts needed for the HTML versions of the maps.  Otherwise,
+	it's Python, all the way down.
+      </p>
+      <h2 id="format">SABX File Format</h2>
+      <p>
+	The first thing I realized was that I needed some way to store the ride
+	data.  I didn't want to just make web pages out of it, I wanted to have
+	a presentation-neutral format that I could turn into whatever kinds of
+	maps I wanted.  I didn't put it in a database, because I wanted the
+	data for each ride to stand on its own.  Insteady, I decided to make a
+	file format for this.  I based it on XML since XML is pretty popular,
+	is human-readable, and has tons of tools to support it. What I came up
+	with is a format I've named SABX (short for SABikerides XML format).
+      </p>
+      <p>
+	The format is specified here: 
+	<a href="1/0/index.html">SABX 1.0 File Format</a>
+      </p>
+      <h2 id="foundation">Foundation Code</h2>
+      <p>
+	After creating the file format, the next thing I noticed was that the
+	libraries available for dealing with XML were pretty generic.  I mean,
+	they do a good job of handling the XML, but they present the data in a
+	very generic format that doesn't relate closely to the SABX file format
+	schema.  Therefore, I generated a library that takes the XML SABX files
+	and transforms them into Python objects that have a much closer
+	correspondence with the SABX data. I also noticed that for just about
+	anything I was going to do with the data, I needed to do some basic
+	calculations on it, so I added that to the library as well.  The
+	library that handles all of this is called <em>oxm</em> (short for
+	object-XML mapper).
+      </p>
+      <p>
+	I also decided somewhat early on in the project that I would need a way
+	to turn the XML files into other types of files, such as HTML and PDF
+	maps.  I briefly thought about using XSLT to do this, but I never could
+	get a good comfort level with that language.  It just felt like a weird
+	kludge.  So, I decided to use Python and a templating engine instead.
+	After much research...  Well, not really.  I just asked my friend
+	Chuck, who's really knowledgable about these sorts of things, and he
+	suggested I try Jinja.  It's close to Django's templating language, and
+	I wanted whatever I did to be easily portable to Django in the future,
+	so that's the one I chose.
+      </p>
+      <p>
+	After playing with Jinja for a while, I noticed a lot of code patterns
+	I kept running into to use it, so I extracted those out into another
+	library, called <em>templating</em>.
+      </p>
+      <h2 id="utilities">Utilities</h2>
+      <p>
+	Well, obviously, foundation code doesn't do you much good unless you
+	have other code that calls it.  Also, building SABX files by hand
+	rapidly became tiresome.  So rapidly, in fact, that I never actually
+	built a whole one by hand.  I immediately went to work creating some
+	utilities that could manipulate them.  The utilities let you do all
+	kinds of things to existing SABX files, and also give you the ability
+	to create new SABX files from existing GPX and TCX files.  This is a
+	good thing since the data for the rides comes from GPS units.  Many
+	such units can be coaxed into producing GPX files from the rides they
+	record, hence my support for that format.  I use the bicycle-specific
+	Garmin units, therefore the somewhat Garmin-specific TCX format is
+	supported as well. It's interesting to note that both the GPX and TCX
+	formats are XML formats, just like my SABX format.  I guess great minds
+	think alike. And name formats (kind of) alike.  Anyway, I stuck this
+	code into a package named, appropriately, <em>utils</em>. I also wrote
+	some scripts to call into <em>utils</em>.
+      </p>
+      <h2 id="maps">Map Generation</h2>
+      <p>
+	So, now that I've generated my lovely SABX files, I still haven't made
+	any maps.  And maps are the real goal of this whole project.  So, I
+	made some software to take the SABX files and generate maps from them.
+      </p>
+      <p>
+	The first kind of maps I made were HTML based, since I wanted to be
+	able to share them on the web.  I'm a computer geek kind of person, so
+	this was a natural thing for me.  Although, I'm probably the only
+	computer geek I know of who's in imminent danger of getting skin cancer
+	from being outside riding my bike so much.  The other computer geeks I
+	know can barely walk a straight line, much less ride a bike. They
+	certainly couldn't manage to physically exert themselves for several
+	hours in a row. I could name names, but that's not relevant here.
+      </p>
+      <p>
+	I ended up using Google Maps for displaying the maps, and a bunch of
+	Jquery stuff to make them do fancy things.  Google Maps is really cool,
+	but if I were starting from scratch now, I'd probably use Open Street
+	Map and its related software ecosystem.  It's not any better than
+	Google Maps, but it is open source and it has a great, very accesible
+	community.
+      </p>
+      <p>
+	The HTML maps looked really cool on the computer screen, but they
+	sucked if you wanted to print them out and take them with you on an
+	actual bike ride.  So, I spent a bunch of time figuring out how to make
+	maps that looked good when you printed them and could actually help you
+	navigate your bicycle on roads.  I ended-up discovering the Mapnik
+	project, which is what Open Street Maps uses to render their maps.  It
+	does a super job making maps, really as good as any commercial maps
+	I've seen on the web.  In fact, it's so good that I can't make it do
+	nearly as good things as I know it's capable of.  That's because I'm
+	artistically stunted, not because the software has any problems.  In
+	the end, I was able to generate high-resolution maps and turn
+	instructions in a handy PDF format that's easily used by cyclists.
+      </p>
+      <p>
+	Of course, the obvious question is, "why would a self-respecting geek
+	like yourself bother with paper maps when you have that nifty smart
+	phone in your pocket that has a GPS built in and should be able to do
+	awesome things with your maps?"  Well, that's a darn good question. The
+	answer is that, phones or no phones, you have to have paper maps.  I've
+	never had paper maps run out of batteries on a ride, and I've never met
+	many cyclists who couldn't figure out how to make a paper map work.
+	They may not be able to figure out how to fold the paper map back up
+	when they're done, but they certainly know how to use them. Still, I'm
+	hoping that someday I'll have the time to finally write that phone
+	application, but until then, the paper maps will have to do.
+      </p>
+      <p>
+	Anyway, by the time I stopped working on this software (I can't say
+	<em>finished</em> because I'll never feel like it's done), I had made
+	software that will create HTML and PDF versions of my maps.  It's all
+	included in the <em>map</em>, <em>osm</em>, <em>pdf_gen</em>, and
+	<em>profiles</em> packages.
+      </p>
+      <h2 id="sabx10">SABX10 Library</h2>
+      <p>
+	Once I'd created all this wonderful software, I decided to give it away
+	as an open source project.  This was partly out of altruism since I'd
+	created it using (mostly) open source software.  It was also partly
+	because I couldn't see any ready commercial value for it, so there was
+	no reason to be stingy with it.
+      </p>
+      <p>
+	While getting it ready to give away, I decided that I needed to package
+	it all up so people could easily use it.  I took all the Python
+	packages I'd created so far and rolled them into one great-big package
+	called <em>sabx10</em>.
+      </p>
+      <p>
+	The <em>sabx10</em> name neads some explanation.  I named it that
+	because it currently handles the SABX 1.0 file format.  I'll generate
+	an <em>sabx11</em> version when I upgrade the format, and so on.  I've
+	struggled a bit with handling different SABX file versions, but I
+	finally decided to build specific library versions for each file
+	version.  This is because I want for each file version to be able to
+	live on, not forcing anyone using it to have to upgrade before they
+	want to.  Therefore, I'll maintain the library version for each file
+	version indefinitely.  This may turn out to be a bad idea in the long
+	run, but for the time being I'm going with it.
+      </p>
+      <p>
+	The sabx10 package is available here: 
+	<a href="1/0/sabx10.html">sabx10</a>.
+      </p>
+      <p>
+	So, now you've heard the story and seen the software.  The rest is up
+	to you.  Happy trails!
+      </p>
+    </div>
+
+    <script type="text/javascript">
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+      try {
+      var pageTracker = _gat._getTracker("UA-5976382-7");
+      pageTracker._trackPageview();
+      } catch(err) {}
+    </script>
+
+  </body>
+</html>

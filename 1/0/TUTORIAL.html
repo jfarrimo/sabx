@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <style type="text/css">
+      body {font-family: Verdana, Arial, sans-serif;}
+      table {border-collapse:collapse;}
+      table, tr, td, th {border: 1px solid;}
+      #body_div {margin-left: auto; margin-right: auto; 
+      border: 0; padding: 0; max-width: 800px;}
+    </style>
+    <title>SABX Tutorial</title>
+  </head>
+  <body>
+    <div id="body_div">
+      <h1>SABX File Creation/Update Tutorial</h1>
+      <p>
+	v1.0.1, 2010-1-28
+      </p>
+      <p>
+	Contact:<br />
+	Jay Farrimond<br />
+	jay@sabikerides.com<br />
+	<a href="http://www.sabikerides.com/">http://www.sabikerides.com/</a>
+      </p>
+      <h2>Table of Contents</h2>
+      <ul>
+	<li><a href="#overview">Overview</a></li>
+	<li><a href="#two">Create an SABX File</a>
+	  <ol>
+	    <li><a href="#two1">get a GPX or TCX file</a></li>
+	    <li><a href="#two2">convert it into an SABX file</a></li>
+	    <li><a href="#two3">convert that into an HTML file</a></li>
+	    <li><a href="#two4">create a blank CSV file</a></li>
+	    <li><a href="#two5">fill-in the ride description, parking, stops,
+	    pois, and roads in the CSV</a></li>
+	    <li><a href="#two6">use the HTML map to fill-in the starting and
+	    ending points for roads</a></li>
+	    <li><a href="#two7">fill-in the parking, stop, and poi (lat,lon)
+	    with points or real (lat,lon) data</a></li>
+	    <li><a href="#two8">merge the CSV file and the SABX file</a></li>
+	    <li><a href="#two9">add the USGS elevation data to the SABX
+	    file</a></li>
+	    <li><a href="#two10">remove any stray points from the SABX
+	    file</a></li>
+	    <li><a href="#two11">renumber the updated SABX file</a></li>
+	    <li><a href="#two12">fill-in the rest of the data for the SABX
+	    file</a></li>
+	    <li><a href="#two13">proof your work</a></li>
+	  </ol>
+	</li>
+	<li><a href="#three">Add A Ride To An SABX File</a>
+	  <ol>
+	    <li><a href="#three1">create an SABX file containing the new
+	    ride</a></li>
+	    <li><a href="#three2">re-number the new SABX file so it doesn't
+	    conflict with the old one</a></li>
+	    <li><a href="#three3">copy the parking, turns, segments, stops, and
+	    pois over to the old one</a></li>
+	    <li><a href="#three4">re-point your duplicate segment stops and
+	    pois to ones already in file</a></li>
+	    <li><a href="#three5">copy the ride over</a></li>
+	    <li><a href="#three6">if using existing parking, point ride parking
+	    to existing one</a></li>
+	    <li><a href="#three7">if some new and old turns and/or segments are
+	    duplicates, point ride at originals</a></li>
+	    <li><a href="#three8">get rid of any now-unused items</a></li>
+	    <li><a href="#three9">renumber the updated SABX file</a></li>
+	    <li><a href="#three10">add a change to the history reflecting new
+	    ride</a></li>
+	    <li><a href="#three11">proof your work</a></li>
+	  </ol>
+	</li>
+	<li><a href="#history">Document History</a></li>
+      </ul>
+      <h2 id="overview">Overview</h2>
+      <p>
+	This tutorial expects you to have a firm grasp of the layout of an SABX
+	file and the intricacies of how its data elements interact.  Please
+	first read the SABX file format specification 
+	<a href="http://www.sabikerides.com/sabx/1/0/index.html">here</a> if
+	you don't already know this.  Since there is quite a bit of
+	hand-editing of SABX files necessary for these tutorials, understanding
+	their layout is essential.  You'll also need to have the
+	<a href="http://www.sabikerides.com/sabx/1/0/sabx10.html">sabx10</a>
+	package installed so that the utilities mentioned in this tutorial will
+	be available.
+      </p>
+      <h2 id="two">Create An SABX File</h2>
+      <p>
+	The main thing you're going to want to do with SABX files is create
+	them.
+      </p>
+      <h3 id="two1">1 get a GPX or TCX file</h3>
+      <p>
+	I create these by downloading data from my GPS to the computer.
+      </p>
+      <h3 id="two2">2 convert it into an SABX file</h3>
+      <p>
+	The utilities gpx2sabx and tcx2sabx are used for this.
+      </p>
+      <h4>Example:</h4>
+      <p>
+	For the example I'll assume we're starting with a GPX file named
+	sample.gpx.  I'll convert it into a file named sample_raw.sabx to
+	denote that it's the raw, unprocessed SABX information.
+      </p>
+      <pre>$ gpx2sabx -i sample.gpx -o sample_raw.sabx</pre>
+      <h3 id="two3">3 convert that into an HTML file</h3>
+      <p>
+	Use sabx2html for this.  It creates an HTML file that contains a Google
+	Map of the ride with the waypoints as pushpins for easy identification.
+      </p>
+      <h4>Example:</h4>
+      <pre>$ sabx2html -i sample_raw.sabx -o sample.html</pre>
+      <h3 id="two4">4 create a blank CSV file</h3>
+      <p>
+	sabx_csv does this with the "-b" option.
+      </p>
+      <h4>Example:</h4>
+      <pre>$ sabx_csv -b sample.csv</pre>
+      <h3 id="two5">5 fill-in the ride description, parking, stops, pois, and
+      roads in the CSV</h3>
+      <p>
+	Open the blank CSV file and fill it in.  I usually use the OpenOffice
+	spreadsheet program for this.  The help for sabx_csv explains what all
+	the fields are and how to use them.
+      </p>
+      <h3 id="two6">6 use the HTML map to fill-in the starting and ending
+      points for roads</h3>
+      <p>
+	Look at the waypoints on the HTML map and decide which ones are the
+	start and end points for each segment.  Remember that adjoining
+	segments will end on one point and then start on the next one (no
+	overlap).  This is because the SABX format assumes that the end point
+	for a segment is really the starting point of the next segment and
+	adjusts things accordingly.
+      </p>
+      <h3 id="two7">7 fill-in the parking, stop, and poi (lat,lon) with
+      points or real (lat,lon) data</h3>
+      <p>
+	Again, use the HTML map to choose points for parking, stops, and pois.
+	If you have actual (lat,lon) values for any of those, use them instead.
+	When merging with the SABX file, any (lat,lon) values for the stops and
+	pois will be matched to the closest waypoints.
+      </p>
+      <h3 id="two8">8 merge the CSV file and the SABX file</h3>
+      <p>
+	Use sabx_csv for this.  It will merge the data from the two files
+	together and form an SABX file from it all.  Look over the new SABX
+	file to make sure everything looks right.
+      </p>
+      <h4>Example:</h4>
+      <p>
+	Notice that we put the merged data into sample.sabx, preserving the
+	sample_raw.sabx file.  This way we can re-run the merge if we find any
+	major problems when inspecting the new file.
+      </p>
+      <pre>$ sabx_csv -i sample_raw.sabx -o sample.sabx sample.csv</pre>
+      <h3 id="two9">9 add the USGS elevation data to the SABX file</h3>
+      <p>
+	Use sabx_usgs for this.
+      </p>
+      <h4>Example:</h4>
+      <p>
+	Notice that I am specifying the same file name for both input and
+	output files.  This effectively updates sample.sabx by over-writing the
+	original copy with the updated copy.
+      </p>
+      <pre>$ sabx_usgs -i sample.sabx -o sample.sabx</pre>
+      <h3 id="two10">10 remove any stray points from the SABX file</h3>
+      <p>
+	While mapping the ride, I sometimes will make stops, stray from the
+	course, turn around to get people, etc... This can create extra
+	waypoints in the ride that look funny and give bad distances when
+	processed.  Use the HTML map to identify any of these and remove them
+	from the SABX file by hand using a text editor.
+      </p>
+      <h3 id="two11">11 renumber the updated SABX file</h3>
+      <p>
+	Renumber the updated SABX file so that its ids are consistent.  You
+	don't have to do this to make things function, but it's nice for anyone
+	who has to later read the file.
+      </p>
+      <h4>Example:</h4>
+      <pre>$ sabx_number -i old.sabx -o old.sabx</pre>
+      <h3 id="two12">12 fill-in the rest of the data for the SABX file</h3>
+      <p>
+	Mostly this is just things like overall description, zip prefix,
+	photos, and history.  I use a text editor for this.
+      </p>
+      <h3 id="two13">13 proof your work</h3>
+      <p>
+	Come on, you know you should!
+      </p>
+      <h2 id="three">Add A Ride To An SABX File</h2>
+      <p>
+	In addition to creating new SABX files, you're also going to want to
+	add new rides to existing files.
+      </p>
+      <h3 id="three1">1 create an SABX file containing the new ride</h3>
+      <p>
+	Start off by following the instructions of section 2 to create a new
+	SABX file with the new ride.
+      </p>
+      <h4>Example:</h4>
+      <p>
+	For this example, we'll call the new file new.sabx and the existing
+	file old.sabx.
+      </p>
+      <h3 id="three2">2 re-number the new SABX file so it doesn't conflict
+      with the old one</h3>
+      <p>
+	Next, renumber the new SABX file so that its ids don't clash with those
+	of the SABX file you're adding to.  Open the old file in a text editor
+	and look through it to see what its highest id is.  I usually then
+	renumber the new file to a much higher starting value just to be sure
+	nothing overlaps.
+      </p>
+      <h4>Example:</h4>
+      <pre>$ sabx_number -i new.sabx -o new.sabx -s 10000</pre>
+      <h3 id="three3">3 copy the parking, turns, segments, stops, and pois
+      over to the old one</h3>
+      <p>
+	Open the old and new SABX files in a text editor.  Copy the parking,
+	turns, segments, stops, and pois from the new file to the old file.
+      </p>
+      <h3 id="three4">4 re-point your duplicate segment stops and pois to
+      ones already in file</h3>
+      <p>
+	It's common for new rides to share stops and pois with the rides in the
+	old SABX file.  Change the references in the new segment waypoints to
+	point to the old stops and pois that they share.
+      </p>
+      <h3 id="three5">5 copy the ride over</h3>
+      <p>
+	Copy the ride itself from the new file into the old one.
+      </p>
+      <h3 id="three6">6 if using existing parking, point ride parking to
+      existing one</h3>
+      <p>
+	If you're using an existing parking place in the new ride, change its
+	reference in the ride.
+      </p>
+      <h3 id="three7">7 if some new and old turns and/or segments are
+      duplicates, point ride at originals</h3>
+      <p>
+	It's common for new rides to have some overlap with the rides in the
+	old SABX file.  Point the new ride to the old segments and turns so
+	that new and old rides share them.  Do this by changing the references
+	in the new ride to have the ids from the old turns and/or segments.
+      </p>
+      <h3 id="three8">8 get rid of any now-unused items</h3>
+      <p>
+	Now that you have copied all the information for the new ride into the
+	old file, and pointed the new ride to use existing parking, turns,
+	segments, stops, and pois, there is probably some unused data items
+	left over from the new file.  Use the sabx_cleanup utility to remove
+	these from the updated SABX file.
+      </p>
+      <h4>Example:</h4>
+      <pre>$ sabx_cleanup -i old.sabx -o old.sabx</pre>
+      <h3 id="three9">9 renumber the updated SABX file</h3>
+      <p>
+	Renumber the updated SABX file so that its ids are consistent.  You
+	don't have to do this to make things function, but it's nice for anyone
+	who has to later read the file.
+      </p>
+      <h4>Example:</h4>
+      <pre>$ sabx_number -i old.sabx -o old.sabx</pre>
+      <h3 id="three10">10 add a change to the history reflecting new
+      ride</h3>
+      <p>
+	Add a change to the history section of the SABX file with the current
+	date and a description of what was added.
+      </p>
+      <h3 id="three11">11 proof your work</h3>
+      <p>
+	Just go ahead and do it.  You won't regret it.
+      </p>
+      <h2 id="history">Document History</h2>
+      <table>
+	<tr>
+	  <th>Version</th><th>Date</th><th>Description</th>
+	</tr>
+	<tr>
+	  <td>v1.0.1</td>
+	  <td>1/28/2010</td>
+	  <td>Minor reformatting.</td>
+	</tr>
+	<tr>
+	  <td>v1.0</td>
+	  <td>12/23/2009</td>
+	  <td>This is the initial release of the tutorial.</td>
+	</tr>
+      </table>
+    </div>
+  </body>
+</html>

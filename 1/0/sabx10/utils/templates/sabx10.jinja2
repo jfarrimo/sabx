@@ -1,0 +1,161 @@
+{#############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# sabx10 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+#############################################################################
+#
+# This template is used to render a complete set of SABX 1.0 data into a
+# correctly formatted SABX 1.0 XML data file.
+#
+#############################################################################}
+<?xml version='1.0' encoding='utf-8'?>
+<rideset xmlns="http://www.sabikerides.com/SABX/1/0/"
+	 version="1.0">
+
+  <uuid>{{ uuid }}</uuid>
+  <version>{{ version }}</version>
+  <zip_prefix>{{ zip_prefix }}</zip_prefix>
+
+  <ride_type>{{ ride_type }}</ride_type>
+  <title>{{ title }}</title>
+  <description>{{ description }}
+  </description>
+  <terrain>{{ terrain }}</terrain>
+
+{% if photos %}
+  <photos>
+    <title>{{ photos.title }}</title>
+    <src>{{ photos.src }}</src>
+{%   for photo in photos.photo_list %}
+    <photo>
+      <desc>{{ photo.desc }}</desc>
+      <href>{{ photo.href }}</href>
+    </photo>
+{%   endfor %}
+  </photos>
+
+{% endif %}
+  <!-- ******************************************* -->
+  <!-- parking                                     -->
+  <!-- ******************************************* -->
+
+{% for parking in park_list %}
+  <parking id='{{ parking.id }}'>
+    <description>{{ parking.description }}</description>
+    <lat>{{ parking.lat }}</lat>
+    <lon>{{ parking.lon }}</lon>
+  </parking>
+
+{% endfor %}
+  <!-- ******************************************* -->
+  <!-- turns & segements                           -->
+  <!-- ******************************************* -->
+
+{% if turn_list|count > seg_list|count %}
+{%   set index_count = turn_list|count %}
+{% else %}
+{%   set index_count = seg_list|count %}
+{% endif %}
+{% for index in range(index_count) %}
+{%   if index < turn_list|count %}
+  <turn id='{{ turn_list[index].id }}'>
+    <fromto>{{ turn_list[index].fromto }}</fromto>
+    <cue>{{ turn_list[index].cue }}</cue>
+    <comments>{{ turn_list[index].comments }}</comments>
+  </turn>
+
+{%   endif %}
+{%   if index < seg_list|count %}
+  <segment id='{{ seg_list[index].id }}'>
+    <road>{{ seg_list[index].road }}</road>
+    <fromto>{{ seg_list[index].fromto }}</fromto>
+    <comments>{{ seg_list[index].comments }}</comments>
+    <lanes>{{ seg_list[index].lanes }}</lanes>
+    <shoulder>{{ seg_list[index].shoulder }}</shoulder>
+    <traffic>{{ seg_list[index].traffic }}</traffic>
+    <speed>{{ seg_list[index].speed }}</speed>
+{%     for point in seg_list[index].waypoints %}
+    <waypoint id='{{ point.id }}'{% if point.stop %} stop='{{ point.stop }}'{% endif %}{% if point.poi %} poi='{{ point.poi }}'{% endif %}>
+      <lat>{{ point.lat }}</lat>
+      <lon>{{ point.lon }}</lon>
+      <ele>{{ point.ele }}</ele>
+{%       if point.usgs %}
+      <usgs>{{ point.usgs }}</usgs>
+{%       endif %}
+    </waypoint>
+{%     endfor %}
+  </segment>
+
+{%   endif %}
+{% endfor %}
+  <!-- ******************************************* -->
+  <!-- stops                                       -->
+  <!-- ******************************************* -->
+
+{% for stop in stop_list %}
+  <stop id='{{ stop.id }}'>
+    <type>{{ stop.type }}</type>
+    <description>{{ stop.description }}</description>
+    <lat>{{ stop.lat }}</lat>
+    <lon>{{ stop.lon }}</lon>
+  </stop>
+
+{% endfor %}
+  <!-- ******************************************* -->
+  <!-- pois                                        -->
+  <!-- ******************************************* -->
+
+{% for poi in poi_list %}
+  <poi id='{{ poi.id }}'>
+    <description>{{ poi.description }}</description>
+    <lat>{{ poi.lat }}</lat>
+    <lon>{{ poi.lon }}</lon>
+  </poi>
+
+{% endfor %}
+  <!-- ******************************************* -->
+  <!-- Ridelist                                    -->
+  <!-- ******************************************* -->
+
+{% for ride in ride_list %}
+  <ride id='{{ ride.id }}'>
+    <description>{{ ride.description }}</description>
+    <parking_ref id='{{ ride.parking }}' />
+{%   for index in range(ride.turns|count) %}
+    <turn_ref id='{{ ride.turns[index] }}' />
+    <segment_ref id='{{ ride.segs[index] }}' />
+{%   endfor %}
+  </ride>
+
+{% endfor %}
+  <!-- ******************************************* -->
+  <!-- History                                     -->
+  <!-- ******************************************* -->
+
+  <history>
+{% for update in history %}
+    <update>
+      <version>{{ update.version }}</version>
+      <date>{{ update.date }}</date>
+      <description>{{ update.description }}</description>
+    </update>
+{% endfor %}
+  </history>
+
+</rideset>

@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+{#############################################################################
+#
+# sabx10 - an SABX file manipulation library
+# Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)
+#
+# This file is part of sabx10.
+#
+# sabx10 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published 
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# sabx10 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with sabx10.  If not, see <http://www.gnu.org/licenses/>.
+#
+##############################################################################
+#
+# This template is used for generating the style file for a ride.
+#
+#############################################################################}
+<!DOCTYPE Map>
+<Map bgcolor="white" srs="+proj=latlong +datum=WGS84">
+
+  <!-- *********************************************** -->
+  <!-- OSM WATER                                       -->
+  <!-- *********************************************** -->
+
+  <Style name="OSM Water Lines">
+    <Rule>
+      <Filter>[waterway] = 'river'</Filter>
+      <LineSymbolizer>
+	<CssParameter name="stroke">blue</CssParameter>
+	<CssParameter name="stroke-width">{{ 3 * PIX_SCALE_FACTOR }}</CssParameter>
+      </LineSymbolizer>
+    </Rule>
+    <Rule>
+      <Filter>[waterway] = 'stream'</Filter>
+      <LineSymbolizer>
+	<CssParameter name="stroke">blue</CssParameter>
+	<CssParameter name="stroke-width">{{ 1 * PIX_SCALE_FACTOR }}</CssParameter>
+      </LineSymbolizer>
+    </Rule>
+  </Style>
+
+  <Style name="OSM Water Text">
+    <Rule>
+      <Filter>[waterway] = 'river'</Filter>
+      <TextSymbolizer name="name" face_name="DejaVu Sans Book" size="{{ (10 * PIX_SCALE_FACTOR)|int }}" fill="black" 
+		      halo_fill="white" halo_radius="{{ (1 * PIX_SCALE_FACTOR)|int }}" placement="line" allow_overlap="true" 
+		      avoid_edges="true" min_distance="{{ (200 * PIX_SCALE_FACTOR)|int }}" />
+    </Rule>
+  </Style>
+
+  <Layer name="osm_water_layer" status="on" srs="+proj=latlong +datum=WGS84">
+    <StyleName>OSM Water Lines</StyleName>
+    <StyleName>OSM Water Text</StyleName>
+    <Datasource>
+      <Parameter name="type">postgis</Parameter>
+      <Parameter name="host">localhost</Parameter>
+      <Parameter name="dbname">gis</Parameter>
+      <Parameter name="user">jay</Parameter>      
+      <Parameter name="password"></Parameter>
+      <Parameter name="table">(select way, waterway, name from planet_osm_line where waterway = 'river' or waterway = 'stream') as foo</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- *********************************************** -->
+  <!-- OSM LAKES                                       -->
+  <!-- *********************************************** -->
+
+  <Style name="OSM Lakes">
+    <Rule>
+      <Filter>[natural] = 'water'</Filter>
+      <PolygonSymbolizer>
+	<CssParameter name="fill">blue</CssParameter>
+      </PolygonSymbolizer>
+    </Rule>
+  </Style>
+
+  <Style name="OSM Lake Text">
+    <Rule>
+      <Filter>[natural] = 'water'</Filter>
+      <TextSymbolizer name="name" face_name="DejaVu Sans Book" size="{{ (10 * PIX_SCALE_FACTOR)|int }}" fill="black" 
+		      halo_fill="white" halo_radius="{{ (1 * PIX_SCALE_FACTOR)|int }}" placement="line" allow_overlap="true" 
+		      avoid_edges="true" min_distance="{{ (200 * PIX_SCALE_FACTOR)|int }}" />
+    </Rule>
+  </Style>
+
+  <Layer name="osm_lake_layer" status="on" srs="+proj=latlong +datum=WGS84">
+    <StyleName>OSM Lakes</StyleName>
+    <StyleName>OSM Lake Text</StyleName>
+    <Datasource>
+      <Parameter name="type">postgis</Parameter>
+      <Parameter name="host">localhost</Parameter>
+      <Parameter name="dbname">gis</Parameter>
+      <Parameter name="user">jay</Parameter>      
+      <Parameter name="password"></Parameter>
+      <Parameter name="table">(select way, "natural", name from planet_osm_polygon where "natural" = 'water') as foo</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- *********************************************** -->
+  <!-- OSM CITIES                                      -->
+  <!-- *********************************************** -->
+
+  <Style name="OSM City Text">
+    <Rule>
+      <Filter>[place] = 'city' or 
+	[place] = 'town' or 
+	[place] = 'village' or
+	[place] = 'hamlet'</Filter>
+      <TextSymbolizer name="name" face_name="DejaVu Sans Book" size="{{ (10 * PIX_SCALE_FACTOR)|int }}" fill="black" 
+		      halo_fill="white" halo_radius="{{ (1 * PIX_SCALE_FACTOR)|int }}" allow_overlap="true" />
+    </Rule>
+  </Style>
+
+  <Layer name="osm_city_layer" status="on" srs="+proj=latlong +datum=WGS84">
+    <StyleName>OSM City Text</StyleName>
+    <Datasource>
+      <Parameter name="type">postgis</Parameter>
+      <Parameter name="host">localhost</Parameter>
+      <Parameter name="dbname">gis</Parameter>
+      <Parameter name="user">jay</Parameter>      
+      <Parameter name="password"></Parameter>
+      <Parameter name="table">(select way, place, name from planet_osm_point where place is not null) as foo</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- *********************************************** -->
+  <!-- OSM ROADS                                       -->
+  <!-- *********************************************** -->
+
+  <Style name="OSM Road Lines">
+    <Rule>
+      <Filter>[highway] = 'residential'
+	or [highway] = 'tertiary'
+	or [highway] = 'motorway_link'
+	or [highway] = 'trunk'
+      </Filter>
+      <LineSymbolizer>
+	<CssParameter name="stroke">black</CssParameter>
+	<CssParameter name="stroke-width">{{ (1 * PIX_SCALE_FACTOR)|int }}</CssParameter>
+      </LineSymbolizer>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'motorway'</Filter>
+      <LineSymbolizer>
+	<CssParameter name="stroke">green</CssParameter>
+	<CssParameter name="stroke-width">{{ (3 * PIX_SCALE_FACTOR)|int }}</CssParameter>
+      </LineSymbolizer>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'primary'</Filter>
+      <LineSymbolizer>
+	<CssParameter name="stroke">black</CssParameter>
+	<CssParameter name="stroke-width">{{ (2 * PIX_SCALE_FACTOR)|int }}</CssParameter>
+      </LineSymbolizer>
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'secondary'</Filter>
+      <LineSymbolizer>
+	<CssParameter name="stroke">black</CssParameter>
+	<CssParameter name="stroke-width">{{ (1.5 * PIX_SCALE_FACTOR)|int }}</CssParameter>
+      </LineSymbolizer>
+    </Rule>
+  </Style>
+
+  <Style name="OSM Road Text">
+    <Rule>
+      <Filter>[highway] = 'motorway'</Filter>
+      <TextSymbolizer name="name" face_name="DejaVu Sans Book" size="{{ (7 * PIX_SCALE_FACTOR)|int }}" fill="black" 
+		      halo_fill="white" halo_radius="{{ (1 * PIX_SCALE_FACTOR)|int }}" placement="line" allow_overlap="true" 
+		      avoid_edges="true" min_distance="{{ (200 * PIX_SCALE_FACTOR)|int }}" max_char_angle_delta="20" />
+    </Rule>
+    <Rule>
+      <Filter>[highway] = 'primary' 
+	or [highway] = 'secondary' 
+	or [highway] = 'tertiary'
+	or [highway] = 'residential'
+      </Filter>
+      <TextSymbolizer name="name" face_name="DejaVu Sans Book" size="{{ (5 * PIX_SCALE_FACTOR)|int }}" fill="black" 
+		      halo_fill="white" halo_radius="{{ (1 * PIX_SCALE_FACTOR)|int }}" placement="line" allow_overlap="false" 
+		      avoid_edges="true" max_char_angle_delta="20" />
+    </Rule>
+  </Style>
+
+  <Layer name="osm_road_layer" status="on" srs="+proj=latlong +datum=WGS84">
+    <StyleName>OSM Road Lines</StyleName>
+    <StyleName>OSM Road Text</StyleName>
+    <Datasource>
+      <Parameter name="type">postgis</Parameter>
+      <Parameter name="host">localhost</Parameter>
+      <Parameter name="dbname">gis</Parameter>
+      <Parameter name="user">jay</Parameter>      
+      <Parameter name="password"></Parameter>
+      <Parameter name="table">(select way, highway, name from planet_osm_line where name is not null order by length(way)) as foo</Parameter>
+    </Datasource>
+  </Layer>
+
+  <!-- *********************************************** -->
+  <!-- SABX                                            -->
+  <!-- *********************************************** -->
+
+  <Style name="SABX Lines">
+    <Rule>
+      <Filter>[type] = 'segment' and [route] = '{{ route_index }}'</Filter>
+      <LineSymbolizer>
+	<CssParameter name="stroke">red</CssParameter>
+	<CssParameter name="stroke-width">{{ (1.5 * PIX_SCALE_FACTOR)|int }}</CssParameter>
+      </LineSymbolizer>
+      <LinePatternSymbolizer width="100" height="16" type="png" 
+			     file="{{ logo_dir }}/oneway-arrowhead.png"/>
+    </Rule>
+  </Style>
+  
+  <Style name="SABX Text">
+    <Rule>
+      <Filter>[type] = 'segment' and [route] = '{{ route_index }}'</Filter>
+       <TextSymbolizer name="name" face_name="DejaVu Sans Book" size="{{ (6 * PIX_SCALE_FACTOR)|int }}" 
+		       fill="red" halo_fill="white" halo_radius="{{ (1 * PIX_SCALE_FACTOR)|int }}" 
+		       placement="line" allow_overlap="false" 
+		       max_char_angle_delta="45"/>
+    </Rule>
+  </Style>
+
+  <Style name="SABX Points">
+    <Rule>
+      <Filter>[type] = 'stop' and 
+	[zoom] = 'no' and 
+	[route] = '{{ route_index }}'</Filter>
+      <TextSymbolizer name="name" face_name="DejaVu Sans Book" size="{{ (8 * PIX_SCALE_FACTOR)|int }}" 
+		      fill="black" halo_fill="steelblue" halo_radius="{{ (2 * PIX_SCALE_FACTOR)|int }}" 
+		      placement="point" allow_overlap="true" />
+    </Rule>
+    <Rule>
+      <Filter>[type] = 'poi' and 
+	[zoom] = 'no' and 
+	[route] = '{{ route_index }}'</Filter>
+      <TextSymbolizer name="name" face_name="DejaVu Sans Book" size="{{ (8 * PIX_SCALE_FACTOR)|int }}" 
+		      fill="black" halo_fill="yellow" halo_radius="{{ (2 * PIX_SCALE_FACTOR)|int }}" 
+		      placement="point" allow_overlap="true" />
+    </Rule>
+    <Rule>
+      <Filter>[type] = 'turn' and 
+	[zoom] = 'no' and 
+	[route] = '{{ route_index }}' and
+	not [name].match('P.*')</Filter>
+      <TextSymbolizer name="name" face_name="DejaVu Sans Book" size="{{ (8 * PIX_SCALE_FACTOR)|int }}" 
+		      fill="black" halo_fill="lightgreen" halo_radius="{{ (2 * PIX_SCALE_FACTOR)|int }}" 
+		      placement="point" allow_overlap="true"/>
+    </Rule>
+    <Rule>
+      <Filter>[type] = 'turn' and 
+	[zoom] = 'no' and 
+	[route] = '{{ route_index }}' and
+	[name].match('P.*')</Filter>
+      <TextSymbolizer name="name" face_name="DejaVu Sans Book" size="{{ (8 * PIX_SCALE_FACTOR)|int }}" 
+		      fill="black" halo_fill="red" halo_radius="{{ (2 * PIX_SCALE_FACTOR)|int }}" 
+		      placement="point" allow_overlap="true"/>
+    </Rule>
+  </Style>
+
+  <Style name="SABX Legend">
+    <Rule>
+      <Filter>[type] = 'key_title' and [route] = '{{ route_index }}'</Filter>
+      <TextSymbolizer name="text" face_name="DejaVu Sans Book" size="{{ (12 * PIX_SCALE_FACTOR)|int }}" 
+		      fill="black" halo_fill="lightgray" halo_radius="{{ (2 * PIX_SCALE_FACTOR)|int }}" 
+		      allow_overlap="true"/>
+    </Rule>
+    <Rule>
+      <Filter>[type] = 'key_dist' and [route] = '{{ route_index }}'</Filter>
+      <TextSymbolizer name="text" face_name="DejaVu Sans Book" size="{{ (10 * PIX_SCALE_FACTOR)|int }}" 
+		      fill="black" halo_fill="lightgray" halo_radius="{{ (2 * PIX_SCALE_FACTOR)|int }}" 
+		      allow_overlap="true"/>
+    </Rule>
+    <Rule>
+      <Filter>[type] = 'key_url' and [route] = '{{ route_index }}'</Filter>
+      <TextSymbolizer name="text" face_name="DejaVu Sans Book" size="{{ (8 * PIX_SCALE_FACTOR)|int }}" 
+		      fill="black" halo_fill="lightgray" halo_radius="{{ (2 * PIX_SCALE_FACTOR)|int }}" 
+		      allow_overlap="true"/>
+    </Rule>
+    <Rule>
+      <Filter>[type] = 'key_park' and [route] = '{{ route_index }}'</Filter>
+      <TextSymbolizer name="text" face_name="DejaVu Sans Book" size="{{ (8 * PIX_SCALE_FACTOR)|int }}" 
+		      fill="black" halo_fill="red" halo_radius="{{ (2 * PIX_SCALE_FACTOR)|int }}" 
+		      allow_overlap="true"/>
+    </Rule>
+    <Rule>
+      <Filter>[type] = 'key_turn' and [route] = '{{ route_index }}'</Filter>
+      <TextSymbolizer name="text" face_name="DejaVu Sans Book" size="{{ (8 * PIX_SCALE_FACTOR)|int }}" 
+		      fill="black" halo_fill="lightgreen" halo_radius="{{ (2 * PIX_SCALE_FACTOR)|int }}" 
+		      allow_overlap="true"/>
+    </Rule>
+    <Rule>
+      <Filter>[type] = 'key_stop' and [route] = '{{ route_index }}'</Filter>
+      <TextSymbolizer name="text" face_name="DejaVu Sans Book" size="{{ (8 * PIX_SCALE_FACTOR)|int }}" 
+		      fill="black" halo_fill="steelblue" halo_radius="{{ (2 * PIX_SCALE_FACTOR)|int }}" 
+		      allow_overlap="true"/>
+    </Rule>
+    <Rule>
+      <Filter>[type] = 'key_poi' and [route] = '{{ route_index }}'</Filter>
+      <TextSymbolizer name="text" face_name="DejaVu Sans Book" size="{{ (8 * PIX_SCALE_FACTOR)|int }}" 
+		      fill="black" halo_fill="yellow" halo_radius="{{ (2 * PIX_SCALE_FACTOR)|int }}" 
+		      allow_overlap="true"/>
+    </Rule>
+    <Rule>
+      <Filter>[type] = 'logo' and [route] = '{{ route_index }}'</Filter>
+      <PointSymbolizer file="{{ logo_dir }}/logo.png" type="png" 
+		       width="127" height="60"/>
+    </Rule>
+  </Style>
+
+  <Layer name="sabx_layer" status="on" srs="+proj=latlong +datum=WGS84" clear_label_cache="on">
+    <StyleName>SABX Legend</StyleName>
+    <StyleName>SABX Lines</StyleName>
+    <StyleName>SABX Text</StyleName>
+    <StyleName>SABX Points</StyleName>
+    <Datasource>
+      <Parameter name="type">osm</Parameter>
+      <Parameter name="file">{{ osm_data }}</Parameter>
+    </Datasource>
+  </Layer>
+
+</Map>

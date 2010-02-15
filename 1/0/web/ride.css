@@ -1,0 +1,168 @@
+/***************************************************************************/
+/*                                                                         */
+/* sabx10 - an SABX file manipulation library                              */
+/* Copyright (C) 2009, 2010 Jay Farrimond (jay@sabikerides.com)            */
+/*                                                                         */
+/* This file is part of sabx10.                                            */
+/*                                                                         */
+/* sabx10 is free software: you can redistribute it and/or modify          */
+/* it under the terms of the GNU General Public License as published       */
+/* by the Free Software Foundation, either version 3 of the License, or    */
+/* (at your option) any later version.                                     */
+/*                                                                         */
+/* sabx10 is distributed in the hope that it will be useful,               */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of          */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           */
+/* GNU General Public License for more details.                            */
+/*                                                                         */
+/* You should have received a copy of the GNU General Public License       */
+/* along with sabx10.  If not, see <http://www.gnu.org/licenses/>.         */
+/*                                                                         */
+/***************************************************************************/
+html, body {width: 100%; height: 100%;}
+body {border: 0; padding: 0; margin: 0; 
+      font-family: Verdana, Arial, sans-serif; font-size: small;}
+
+/*********************/
+/* overall structure */
+/*********************/
+#no_js_warning {border: 1px solid black; text-align: center;
+		font-size: medium;}
+#header {margin: 0; border: 1px solid #aaaaaa; padding: 3px;
+	 -moz-border-radius: 4px; -webkit-border-radius: 4px;
+	 display: none;}
+#tabs {margin: 0; padding: 0;
+       overflow: hidden;
+       display: none;}
+#map {border: 1px solid #aaaaaa; padding: 0; margin: 0;
+      -moz-border-radius: 4px; -webkit-border-radius: 4px;
+      display: none;}
+#sab-copyright {text-align: center;
+		margin: 0; border: 1px solid #aaaaaa; padding: 3px;
+		-moz-border-radius: 4px; -webkit-border-radius: 4px;
+		display: none;}
+
+/**********/
+/* header */
+/**********/
+#header-title {font-size: xx-large; font-weight: bold; margin-right: 50px;}
+#header-nav, #header-rides {font-size: small;}
+#header img {border: 0;}
+#header table {display: inline;}
+#header td {padding-left: 10px; text-align: left; vertical-align: middle;}
+#header #hdr-logo {width: 90px; float: left; display: inline; height: 100%;}
+#header #hdr-title {margin-left: 100px; height: 100%; vertical-align: middle;}
+
+.header-ride-unsel {font-size: small;}
+.header-ride-sel {font-size: large; font-weight: bold;}
+
+/********/
+/* tabs */
+/********/
+#tabs-overview {overflow: auto;}
+#tabs-parking {overflow: auto;}
+#tabs-stops {overflow: auto;}
+#tabs-pois {overflow: auto;}
+#tabs-instructions {overflow: auto;}
+#tabs-profiles {overflow: auto;}
+#tabs-comments {overflow: auto;}
+#tabs-conditions {overflow: auto;}
+#tabs-print {overflow: auto;}
+
+/* parking */
+.parking-spans {cursor: pointer;}
+#parking-help-div {width: 90%; margin-bottom: 10px; text-align: right;}
+
+/* stops */
+.stops-dist {vertical-align: top;}
+.stops-label {vertical-align: top;}
+.stops-rows {cursor: pointer;}
+.stops-no-stops {font-weight: bold;}
+#stops-help-div {width: 90%; margin-bottom: 10px; text-align: right;}
+
+/* pois */
+.pois-dist {vertical-align: top;}
+.pois-label {vertical-align: top;}
+.pois-rows {cursor: pointer;}
+.pois-no-pois {font-weight: bold;}
+#pois-help-div {width: 90%; margin-bottom: 10px; text-align: right;}
+
+/* instructions */
+#inst-help-table {width: 90%; margin-bottom: 10px;}
+.inst-instructions {font-size: medium; font-weight: bolder;}
+.inst-header {font-weight: bolder;}
+.inst-label {text-decoration: underline;}
+.inst-dist {vertical-align: top;}
+.inst-rows {cursor: pointer;}
+
+/* profiles */
+.prof-title {font-weight: bolder; font-size: medium;}
+.prof-seg-title {margin-top: 15px; 
+		 padding: 5px 0px 5px 0px; 
+		 border-top: 1px solid black;
+		 font-weight: bolder; font-size: medium;}
+.prof-profile {border-bottom: 1px solid #aaaaaa;
+	       padding: 3px 0px 3px 0px;}
+.prof-rows {cursor: pointer;}
+.prof-graph-prof, .prof-graph-hist {cursor: pointer;}
+#profs-help-div {width: 90%; margin-bottom: 10px; text-align: right;}t
+.prof-table {border: thin solid #aaaaaa; border-collapse: collapse;}
+.prof-table tr, .prof-table th, .prof-table td  {border: thin solid #aaaaaa;}
+
+/* comments/conditions forms */
+#comments-help-div {width: 90%; margin-bottom: 10px; text-align: right;}
+#conditions-help-div {width: 90%; margin-bottom: 10px; text-align: right;}
+.comment-form {padding: 10px 0px 10px 0px; border-top: 1px solid #aaaaaa;}
+.comment-form-header {font-weight: bolder; margin: 0px 0px 10px 0px;}
+.comment-header {border: none; margin: 0px 0px 10px 0px; 
+		 font-weight: bolder;}
+.comment-comment {border-top: 1px solid #aaaaaa; 
+		  margin: 0px 0px 0px 0px;
+		  padding: 5px;}
+.comment-name {font-weight: bolder;}
+.comment-table td {text-align: left;}
+/*
+.comment-even {background-color: #e0ffe0;}
+.comment-odd {background-color: #f7f7f7;}
+*/
+/* print */
+.print-label {font-weight: bolder; font-size: medium;}
+#print-help-div {width: 90%; margin-bottom: 10px; text-align: right;}
+.print-sub-types {padding-left: 20px;}
+.print-sub-sub-types {padding-left: 40px;}
+
+/* tables */
+.tab-table {border: none; border-collapse: collapse;}
+.tab-evenrow, .tab-oddrow {border-bottom: 1px solid #aaaaaa;
+			  vertical-align: top;}
+.tab-table td {padding-top: 3px; padding-bottom: 3px; padding-right: 7px;}
+.tab-table th {text-align: left; padding-right: 7px;}
+
+/*******/
+/* map */
+/*******/
+#map-toggles {border: 0; padding:  3px; margin: 0; height: 32px;}
+#map-canvas {border: 0; padding: 0; margin: 0;}
+.map-show-tabs {position: relative; top: -10px;}
+#map-rezoom {position: relative; top: -10px; margin-right: 30px;}
+
+/****************/
+/* info windows */
+/****************/
+
+.parking-title {text-decoration: underline; font-weight: bolder;}
+.stop-title {text-decoration: underline; font-weight: bolder;}
+.stop-label {text-decoration: underline;}
+.poi-title {text-decoration: underline; font-weight: bolder;}
+.poi-label {text-decoration: underline;}
+.seg-title {text-decoration: underline; font-weight: bolder;}
+.seg-label {text-decoration: underline;}
+.turn-title {text-decoration: underline; font-weight: bolder;}
+.turn-subtitle {font-weight: bolder;}
+.turn-label {text-decoration: underline;}
+
+/****************/
+/* help         */
+/****************/
+
+.help-label {font-weight: bolder; text-decoration: underline;}

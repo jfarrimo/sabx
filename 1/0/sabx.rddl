@@ -1,0 +1,690 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:rddl="http://www.rddl.org/">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <style type="text/css">
+      body {font-family: Verdana, Arial, sans-serif;}
+      table {border-collapse:collapse;}
+      table, tr, td, th {border: 1px solid;}
+      #body_div {margin-left: auto; margin-right: auto; 
+      border: 0; padding: 0; max-width: 960px;}
+    </style>
+    <title>SABX 1.0 File Format</title>
+  </head>
+  <body>
+    <div id="body_div">
+      <h1>SABX 1.0 File Format</h1>
+      <p>
+	2010-1-28
+      </p>
+      <p>
+	Contact:<br />
+	Jay Farrimond<br />
+	jay@sabikerides.com<br />
+	<a href="http://www.sabikerides.com/">http://www.sabikerides.com/</a>
+      </p>
+      <h2>Table of Contents</h2>
+      <ol>
+	<li><a href="#intro">Introduction</a></li>
+	<li><a href="#namespace">Namespace</a></li>
+	<li><a href="#admin">Administrative Data</a></li>
+	<li><a href="#photos">Photos</a></li>
+	<li><a href="#park">Parking</a></li>
+	<li><a href="#stopspois">Stops and POIs</a>
+	  <ol>
+	    <li><a href="#stops">Stop</a></li>
+	    <li><a href="#pois">POI</a></li>
+	  </ol>
+	</li>
+	<li><a href="#turnsegs">Turns and Segments</a>
+	  <ol>
+	    <li><a href="#turn">Turn</a></li>
+	    <li><a href="#seg">Segment</a></li>
+	  </ol>
+	</li>
+	<li><a href="#ride">Rides</a></li>
+	<li><a href="#hist">History</a></li>
+	<li><a href="#docs">Related Documents</a>
+	  <ul>
+	    <li><a href="sabx.dtd">DTD</a></li>
+	    <li><a href="sabx.xsd">XML Schema</a></li>
+	  </ul>
+	</li>
+	<li><a href="#software">Related Software</a>
+	  <ul>
+	    <li><a href="sabx10.html">sabx10</a></li>
+	  </ul>
+	</li>
+      </ol>
+      <h2 id="intro">1. Introduction</h2>
+      <p>
+	The SABX file format is an XML-based format intended for use in storing
+	information for bicycle ride maps.  It's root element is a rideset,
+	which contains all the information needed to define multiple routes.
+	The spirit of a rideset is that it contains all the variants (usually
+	different distances) of a specific ride from a specific location (or
+	nearby locations).  You can abuse this as you see fit.  The terms
+	"ride" and "rideset" are used interchangably in this document.
+      </p>
+      <p>
+	Ride data consists of photos, parking places, turns, segments, stops,
+	points of interest (POIs), rides, and history, as well as some
+	administrative data.
+      </p>
+      <p>
+	Many of the elements have an "id" attribute.  The ids are expected to
+	be unique for each type of element (i.e. all stops have unique ids, all
+	turns have unique ids), but an id might be re-used between types.
+      </p>
+      <h2 id="namespace">2. Namespace</h2>
+      <p>
+	The namespace for SABX 1.0 files is 
+	<a href="http://www.sabikerides.com/sabx/1/0/">http://www.sabikerides.com/sabx/1/0/</a>.
+      </p>
+      <h2 id="admin">3. Administrative Data</h2>
+      <p>
+	Various odds and ends about the rideset.
+      </p>
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>uuid</td>
+	  <td>string</td>
+	  <td>unique identifier for this ride (standard UUID)</td>
+	</tr><tr>
+	  <td>version</td>
+	  <td>positive integer</td>
+	  <td>version of this ride (incremental integer)</td>
+	</tr><tr>
+	  <td>zip_prefix</td>
+	  <td>positive integer</td>
+	  <td>first three digits of the zip code where the ride starts</td>
+	</tr><tr>
+	  <td>ride_type</td><td>string</td><td>road or mtb (so far)</td>
+	</tr><tr>
+	  <td>title</td><td>string</td><td>name of the ride</td>
+	</tr><tr>
+	  <td>description</td>
+	  <td>string</td>
+	  <td>describes the ride (can contain paragraphs and links)</td>
+	</tr><tr>
+	  <td>terrain</td>
+	  <td>string</td>
+	  <td>flat, rolling, hilly, mountainous, etc...</td>
+	</tr>
+      </table>
+      <h4>Sample</h4>
+      <pre>
+        &lt;uuid&gt;bfe4b93d-526c-4dbb-91c3-71c4297475cd&lt;/uuid&gt;
+	&lt;version&gt;1&lt;/version&gt;
+	&lt;zip_prefix&gt;782&lt;/zip_prefix&gt;
+	&lt;ride_type&gt;road&lt;/ride_type&gt;
+	&lt;title&gt;Main Plaza - Mission Trail&lt;/title&gt;
+	&lt;description&gt;&lt;p&gt;Take a historic ride from the Main Plaza in San Antonio
+	to the Mission Trail.  View San Antonio and the Missions along
+	the way.&lt;/p&gt;
+	&lt;/description&gt;
+	&lt;terrain&gt;Flat&lt;/terrain&gt;
+      </pre>
+      <h2 id="photos">4. Photos</h2>
+      <p>
+	Cover photo for ride and links to other photos of the ride.  There 
+	can be multiple links to other photos.
+      </p>
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>title</td>
+	  <td>string</td>
+	  <td>title text for cover photo (corresponds to "title" attribute 
+	    for image element)</td>
+	</tr><tr>
+	  <td>src</td>
+	  <td>URI</td>
+	  <td>URL of cover photo (corresponds to "src" attribute for image 
+	    element)</td>
+	</tr><tr>
+	  <td>photo</td>
+	  <td>element</td>
+	  <td>additional links for other photo sources (min: 0, max: 
+	    unbounded)</td>
+	</tr>
+      </table>
+      <p>
+	Each additional photo link is composed of:
+      </p>
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>desc</td>
+	  <td>string</td>
+	  <td>description of link to other photos (corresponds to "desc" 
+	    attribute of an a element)</td>
+	</tr><tr>
+	  <td>href</td>
+	  <td>URI</td>
+	  <td>URL for link to other photos (corresponds to "href" attribute 
+	    of an a element)</td>
+	</tr>
+      </table>
+      <h4>Sample</h4>
+      <pre>
+        &lt;photos&gt;
+	&lt;title&gt;&lt;/title&gt;
+	&lt;src&gt;&lt;/src&gt;
+	&lt;photo&gt;
+	&lt;desc&gt;&lt;/desc&gt;
+	&lt;href&gt;&lt;/href&gt;
+	&lt;/photo&gt;
+	&lt;/photos&gt;
+      </pre>
+      <h2 id="park">5. Parking</h2>
+      <p>
+	Location (lat,lon) and description of where the rides start.  There 
+	can be multiple instances of parking.
+      </p>
+      <table>
+	<tr>
+	  <th>Attribute Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>id</td>
+	  <td>string</td>
+	  <td>unique identifier for this parking place (usually sequentially 
+	    numbered)</td>
+	</tr>
+      </table>
+      <p />
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>description</td>
+	  <td>string</td>
+	  <td>describes the parking place (can contain paragraphs and 
+	    links)</td>
+	</tr><tr>
+	  <td>lat</td>
+	  <td>decimal</td>
+	  <td>latitude of parking place (in degrees)</td>
+	</tr><tr>
+	  <td>lon</td>
+	  <td>decimal</td>
+	  <td>longitude of parking place (in degrees, west being negative)</td>
+	</tr>
+      </table>
+      <h4>Sample</h4>
+      <pre>
+        &lt;parking id='4'&gt;
+	&lt;description&gt;You're on your own in downtown San Antonio.  
+	Parking is available, but it's so varied that there's no way I can 
+	tell you where to park.&lt;/description&gt;
+	&lt;lat&gt;29.4247617&lt;/lat&gt;
+	&lt;lon&gt;-98.4930004&lt;/lon&gt;
+	&lt;/parking&gt;
+      </pre>
+      <h2 id="stopspois">6. Stops and POIs</h2>
+      <p>
+	Stops and POIs define points (lat,lon) of note along the rides.
+      </p>
+      <h3 id="stops">6.1 Stop</h3>
+      <p>
+	Stops tell where there are places to stop (duh!) for refreshments or
+	rest. There can be 0 or more stops for a ride.
+      </p>
+      <table>
+	<tr>
+	  <th>Attribute Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>id</td>
+	  <td>string</td>
+	  <td>unique identifier for this stop (usually sequentially 
+	    numbered)</td>
+	</tr>
+      </table>
+      <p />
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>type</td>
+	  <td>string</td>
+	  <td>what kind of a stop is this? common examples are "convenience 
+	    store", "gas station", "restaurant", etc...</td>
+	</tr><tr>
+	  <td>description</td>
+	  <td>string</td>
+	  <td>describes the stop (can contain paragraphs and links)</td>
+	</tr><tr>
+	  <td>lat</td><td>decimal</td><td>latitude of stop (in degrees)</td>
+	</tr><tr>
+	  <td>lon</td>
+	  <td>decimal</td>
+	  <td>longitude of stop (in degrees, west being negative)</td>
+	</tr>
+      </table>
+      <h4>Sample</h4>
+      <pre>
+	&lt;stop id='9'&gt;
+	&lt;type&gt;mission&lt;/type&gt;
+	&lt;description&gt;Mission Concepcion has water and restrooms in the park 
+        headquarters building.&lt;/description&gt;
+	&lt;lat&gt;29.3897387&lt;/lat&gt;
+	&lt;lon&gt;-98.491712&lt;/lon&gt;
+	&lt;/stop&gt;
+      </pre>
+      <h3 id="pois">6.2 POI</h3>
+      <p>
+	POIs note places of interest along the ride.  POIs can be landmarks, 
+	hazards, etc...
+      </p>
+      <table>
+	<tr>
+	  <th>Attribute Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>id</td>
+	  <td>string</td>
+	  <td>unique identifier for this POI (usually sequentially 
+	    numbered)</td>
+	</tr>
+      </table>
+      <p />
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>description</td>
+	  <td>string</td>
+	  <td>describes the POI (can contain paragraphs and links)</td>
+	</tr><tr>
+	  <td>lat</td><td>decimal</td><td>latitude of POI (in degrees)</td>
+	</tr><tr>
+	  <td>lon</td>
+	  <td>decimal</td>
+	  <td>longitude of POI (in degrees, west being negative)</td>
+	</tr>
+      </table>
+      <h4>Sample</h4>
+      <pre>
+        &lt;poi id='10050'&gt;
+	&lt;description&gt;Mission Concepcion&lt;/description&gt;
+	&lt;lat&gt;29.390316667&lt;/lat&gt;
+	&lt;lon&gt;-98.491733333&lt;/lon&gt;
+	&lt;/poi&gt;
+      </pre>
+      <h2 id="turnsegs">7. Turns and Segments</h2>
+      <p>
+	Turns and segments compliment each other.  Turns connect segments, and
+	segments connect turns.  Each ride starts with a turn and ends with a
+	segment.  The first turn tells you how to proceed from parking onto the
+	first segment, so parking is an implied one-point first segment. It is
+	also implied that the last segment ends at the end of the ride, quite
+	often back where you parked.
+      </p>
+      <h3 id="turn">7.1 Turn</h3>
+      <p>
+	Turns connect segments.  They tell the names of the segments they
+	connect, give the turn cue, and give commentary about the turn.
+      </p>
+      <table>
+	<tr>
+	  <th>Attribute Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>id</td>
+	  <td>string</td>
+	  <td>unique identifier for this turn (usually sequentially 
+	    numbered)</td>
+	</tr>
+      </table>
+      <p />
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>fromto</td>
+	  <td>string</td>
+	  <td>what this turn connects, generally of the form "STREET_X to 
+	    STREET_Y"</td>
+	</tr><tr>
+	  <td>cue</td>
+	  <td>string</td>
+	  <td>what to do at this turn, for instance "LEFT onto STREET_Y"</td>
+	</tr><tr>
+	  <td>comments</td>
+	  <td>string</td>
+	  <td>additional information about the turn</td>
+	</tr>
+      </table>
+      <h4>Sample</h4>
+      <pre>
+        &lt;turn id='5'&gt;
+	&lt;fromto&gt;parking to Main Plaza&lt;/fromto&gt;
+	&lt;cue&gt;SOUTH on Main Plaza&lt;/cue&gt;
+	&lt;comments&gt;Head South from the starting spot.&lt;/comments&gt;
+	&lt;/turn&gt;
+      </pre>
+      <h3 id="seg">7.2 Segment</h3>
+      <p>
+	Each segment is a part of a road or multiple roads, since often the
+	same road will change names as you go along it, and sometimes a road
+	will have turns in it but maintain the same name through the turns.  A
+	segment names and describes the road, tells what it connects, gives
+	various statistics about it, and contains the waypoints (lat,lon) that
+	define its geometry.
+      </p>
+      <table>
+	<tr>
+	  <th>Attribute Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>id</td>
+	  <td>string</td>
+	  <td>unique identifier for this segment (usually sequentially 
+	    numbered)</td>
+	</tr>
+      </table>
+      <p />
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>road</td><td>string</td><td>name of this road</td>
+	</tr><tr>
+	  <td>fromto</td>
+	  <td>string</td>
+	  <td>what this segment connects, generally of the form "STREET_X to 
+	    STREET_Y"</td>
+	</tr><tr>
+	  <td>comments</td>
+	  <td>string</td>
+	  <td>additional information about the segment</td>
+	</tr><tr>
+	  <td>lanes</td>
+	  <td>string</td>
+	  <td>minimum number of lanes (doesn't count turning lane)</td>
+	</tr><tr>
+	  <td>shoulder</td>
+	  <td>string</td>
+	  <td>minimum width of shoulder (I use fantasy bike widths, and do it 
+	    in fractions)</td>
+	</tr><tr>
+	  <td>traffic</td>
+	  <td>string</td>
+	  <td>light, moderate, heavy, etc...</td>
+	</tr><tr>
+	  <td>speed</td><td>string</td><td>maximum speed limit on the road</td>
+	</tr><tr>
+	  <td>waypoint</td>
+	  <td>element</td>
+	  <td>a set of (lat,lon) waypoints defines the geometry of this 
+	    segment</td>
+	</tr>
+      </table>
+      <p>
+	For a stop or POI to be included in a ride, it must be referenced by
+	one of the waypoints for that ride.  This lets the ride know where in
+	the ride these occur. It works this way since a stop or a POI might not
+	be exactly on the ride, but somewhere near it.  This specifies the
+	waypoint that is nearist to it.
+      </p>
+      <p>
+	It is assumed that the very last waypoint in a segment is omitted.
+	When segments are combined for a ride, it as assumed that each
+	segment's last waypoint is actually the first waypoint of the following
+	segment.  In this way all segments are connected.
+      </p>
+      <p>
+	Each waypoint consists of the following information:
+      </p>
+      <table>
+	<tr>
+	  <th>Attribute Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>id</td>
+	  <td>string</td>
+	  <td>unique identifier for this waypoint (usually sequentially
+	    numbered)</td>
+	</tr><tr>
+	  <td>stop</td>
+	  <td>string</td>
+	  <td>space-delimited list of ids of stops near this point 
+	    (optional)</td>
+	</tr><tr>
+	  <td>poi</td>
+	  <td>string</td>
+	  <td>space-delimited list of ids of POIs near this point 
+	    (optional)</td>
+	</tr>
+      </table>
+      <p />
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>lat</td>
+	  <td>decimal</td>
+	  <td>latitude of waypoint (in degrees)</td>
+	</tr><tr>
+	  <td>lon</td>
+	  <td>decimal</td>
+	  <td>longitude of waypoint (in degrees, west being negative)</td>
+	</tr><tr>
+	  <td>ele</td>
+	  <td>decimal</td>
+	  <td>recorded elevation of this waypoint (in meters)</td>
+	</tr><tr>
+	  <td>usgs</td>
+	  <td>decimal</td>
+	  <td>what the USGS thinks the elevation of this waypoint is (in 
+	    meters)</td>
+	</tr>
+      </table>
+      <h4>Sample</h4>
+      <pre>
+        &lt;segment id='5'&gt;
+	&lt;road&gt;Main Plaza&lt;/road&gt;
+	&lt;fromto&gt;parking to Market St.&lt;/fromto&gt;
+	&lt;comments&gt;Take off from Main Plaza next to the food and juice stand.  
+	You should probably push your bike through the plaza until you get to 
+	Market St.&lt;/comments&gt;
+	&lt;lanes&gt;1&lt;/lanes&gt;
+	&lt;shoulder&gt;0&lt;/shoulder&gt;
+	&lt;traffic&gt;Moderate&lt;/traffic&gt;
+	&lt;speed&gt;30&lt;/speed&gt;
+	&lt;waypoint id='277'&gt;
+	&lt;lat&gt;29.42475&lt;/lat&gt;
+	&lt;lon&gt;-98.4930398&lt;/lon&gt;
+	&lt;ele&gt;184.23&lt;/ele&gt;
+	&lt;usgs&gt;197.490249634&lt;/usgs&gt;
+	&lt;/waypoint&gt;
+	&lt;waypoint id='278' stop='9' poi='10052 10053'&gt;
+	&lt;lat&gt;29.4246934&lt;/lat&gt;
+	&lt;lon&gt;-98.4930739&lt;/lon&gt;
+	&lt;ele&gt;185.19&lt;/ele&gt;
+	&lt;usgs&gt;197.745498657&lt;/usgs&gt;
+	&lt;/waypoint&gt;
+	&lt;/segment&gt;
+      </pre>
+      <h2 id="ride">8. Rides</h2>
+      <p>
+	Rides define the different routes in the rideset.  Each has a
+	description, a parking place, and various turns and segments.  Parking
+	places, turns, and segments are stored as references to the real
+	entities, allowing for re-use.  The convention is that there are
+	turn,segment pairs that define the geometry of the route.  This is
+	specified by listing alternately turn, segment, turn, segment, etc...
+	There is no final turn.  It's implied that the final segment ends at
+	the stoping place.
+      </p>
+      <table>
+	<tr>
+	  <th>Attribute Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>id</td>
+	  <td>string</td>
+	  <td>unique identifier for this ride (usually sequentially 
+	    numbered)</td>
+	</tr>
+      </table>
+      <p />
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>description</td>
+	  <td>string</td>
+	  <td>describes the route (can contain paragraphs and links)</td>
+	</tr><tr>
+	  <td>parking_ref</td>
+	  <td>element</td>
+	  <td>reference to id of parking place for this route</td>
+	</tr><tr>
+	  <td>turn_ref</td>
+	  <td>element</td>
+	  <td>reference to id of a turn for this route</td>
+	</tr><tr>
+	  <td>segment_ref</td>
+	  <td>element</td>
+	  <td>reference to id of a segment for this route</td>
+	</tr>
+      </table>
+      <p>
+	Each parking_ref is an empty element that has an "id" attribute.
+      </p>
+      <table>
+	<tr>
+	  <th>Attribute Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>id</td>
+	  <td>string</td>
+	  <td>unique identifier of the parking place for this ride</td>
+	</tr>
+      </table>
+      <p>
+	Each turn_ref is an empty element that has an "id" attribute.
+      </p>
+      <table>
+	<tr>
+	  <th>Attribute Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>id</td>
+	  <td>string</td>
+	  <td>unique identifier of a turn for this ride</td>
+	</tr>
+      </table>
+      <p>
+	Each segment_ref is an empty element that has an "id" attribute.
+      </p>
+      <table>
+	<tr>
+	  <th>Attribute Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>id</td>
+	  <td>string</td>
+	  <td>unique identifier of a segment this ride</td>
+	</tr>
+      </table>
+      <h4>Sample</h4>
+      <pre>
+	&lt;ride id='1'&gt;
+	&lt;description&gt;The short ride goes to Mission Concepcion, then turns around
+	and returns.&lt;/description&gt;
+	&lt;parking_ref id='4' /&gt;
+	&lt;turn_ref id='5' /&gt;
+	&lt;segment_ref id='5' /&gt;
+	&lt;turn_ref id='6' /&gt;
+	&lt;segment_ref id='6' /&gt;
+	&lt;turn_ref id='7' /&gt;
+	&lt;segment_ref id='7' /&gt;
+	&lt;turn_ref id='8' /&gt;
+	&lt;segment_ref id='8' /&gt;
+	&lt;turn_ref id='10' /&gt;
+	&lt;segment_ref id='10' /&gt;
+	&lt;turn_ref id='11' /&gt;
+	&lt;segment_ref id='11' /&gt;
+	&lt;turn_ref id='12' /&gt;
+	&lt;segment_ref id='12' /&gt;
+	&lt;turn_ref id='13' /&gt;
+	&lt;segment_ref id='13' /&gt;
+	&lt;/ride&gt;
+      </pre>
+      <h2 id="hist">9. History</h2>
+      <p>
+	This is the history of the rideset document.  It consists of updates
+	detailing all the changes made to it over time.
+      </p>
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>update</td>
+	  <td>element</td>
+	  <td>there should be an update for each version of the file as it 
+	    evolves</td>
+	</tr>
+      </table>
+      <p>
+	Each update contains the following:
+      </p>
+      <table>
+	<tr>
+	  <th>Element Name</th><th>Type</th><th>Description</th>
+	</tr><tr>
+	  <td>version</td>
+	  <td>positive integer</td>
+	  <td>version of the update that corresponds to the version of document
+	    (last update always corresponds to current version of
+	    document)</td>
+	</tr><tr>
+	  <td>date</td>
+	  <td>date</td>
+	  <td>XSD compliant date (YYYY-MM-DD) of the update</td>
+	</tr><tr>
+	  <td>description</td>
+	  <td>string</td>
+	  <td>description of the change (can contain paragraphs and links)</td>
+	</tr>
+      </table>
+      <h4>Sample</h4>
+      <pre>
+	&lt;history&gt;
+	&lt;update&gt;
+	&lt;version&gt;1&lt;/version&gt;
+	&lt;date&gt;2009-10-19&lt;/date&gt;
+	&lt;description&gt;Created.&lt;/description&gt;
+	&lt;/update&gt;
+	&lt;/history&gt;
+      </pre>
+      <h2 id="docs">10. Related Documents</h2>
+      <p>
+	<rddl:resource xlink:type="simple"
+		       xlink:title="DTD for validation"
+		       xlink:arcrole="http://www.rddl.org/purposes#validation"
+		       xlink:role="http://www.isi.edu/in-notes/iana/assignments/media-types/application/xml-dtd"
+		       xlink:href="sabx.dtd"
+		       >
+	  The DTD is <a href="sabx.dtd">here</a>.
+	</rddl:resource>
+      </p>
+      <p>
+	<rddl:resource xlink:type="simple"
+		       xlink:title="XML Schema for validation"
+		       xlink:arcrole="http://www.rddl.org/purposes#schema-validation"
+		       xlink:role="http://www.w3.org/2001/XMLSchema"
+		       xlink:href="sabx.xsd"
+		       >
+	  The XML Schema is <a href="sabx.xsd">here</a>.
+	</rddl:resource>
+      </p>
+      <h2 id="software">11. Related Software</h2>
+      <p>
+	There is a Python library for working with SABX 1.0 files called
+	<a href="sabx10.html">sabx10</a>.
+      </p>
+    </div>
+  </body>
+</html>
