@@ -42,7 +42,8 @@
       <p>
 	In the course of building the maps, I generated a lot of software to
 	help in the process.  I'm now open sourcing it so that anyone else can
-	use it.
+	use it.  The code tree is available on GitHub at
+	<a href="http://github.com/sabikerides/sabx">http://github.com/sabikerides/sabx</a>.
       </p>
       <p>
 	The site itself is 
@@ -52,20 +53,21 @@
       </p>
       <p>
 	By the way, I like programming in Python, so most of the software to
-	support the sited was written in Python.  The exceptions are (of
-	course) the parts needed for the HTML versions of the maps.  Otherwise,
-	it's Python, all the way down.
+	support the site was written in Python.  The exceptions are (of course)
+	the parts needed for the HTML versions of the maps.  Otherwise, it's
+	Python, all the way down.
       </p>
       <h2 id="format">SABX File Format</h2>
       <p>
-	The first thing I realized was that I needed some way to store the ride
-	data.  I didn't want to just make web pages out of it, I wanted to have
-	a presentation-neutral format that I could turn into whatever kinds of
-	maps I wanted.  I didn't put it in a database, because I wanted the
-	data for each ride to stand on its own.  Insteady, I decided to make a
-	file format for this.  I based it on XML since XML is pretty popular,
-	is human-readable, and has tons of tools to support it. What I came up
-	with is a format I've named SABX (short for SABikerides XML format).
+	The first thing I realized when creating the site was that I needed
+	some way to store the ride data.  I didn't want to just make web pages
+	out of it, I wanted to have a presentation-neutral format that I could
+	turn into whatever kinds of maps I wanted.  I didn't put it in a
+	database, because I wanted the data for each ride to stand on its own.
+	Insteady, I decided to make a file format for this.  I based it on XML
+	since XML is pretty popular, is human-readable, and has tons of tools
+	to support it. What I came up with is a format I've named SABX (short
+	for SABikerides XML format).
       </p>
       <p>
 	The format is specified here: 
