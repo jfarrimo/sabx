@@ -124,20 +124,21 @@ var segments = [
 {%     set seg = ride.segs[loop.index0] %}
      {{ inner_comma() }}
      {
-     turnHtml : "<span class=\'turn-title\'>{{ turn.fromto }}</span><p /><span class=\'turn-subtitle\'>{{ turn.cue }}</span><p />{{ turn.comments }}<p /><span class=\'turn-label\'>turn-at distance</span>: {{ "%.2f" | format(turn.distance) }} miles",
-     roadHtml: "<span class=\'seg-title\'>{{ seg.road }}</span><p />{{ seg.comments|replace('\n', '') }}<p /><span class=\'seg-label\'>distance</span>: {{ "%.2f" | format(seg.length) }} miles<br /><span class=\'seg-label\'>lanes</span>: {{ seg.lanes }}<br /><span class=\'seg-label\'>shoulder</span>: {{ seg.shoulder }}<br /><span class=\'seg-label\'>traffic</span>: {{ seg.traffic }}<br /><span class=\'seg-label\'>speed</span>: {{ seg.speed }}",
-     profileHtml: "<img src=\'{{ seg.profile_small }}\' />",
+     theHtml : "<span class=\'seg-title\'>{{ seg.road }}</span><p />{{ seg.comments|replace('\n', '') }}<p /><span class=\'seg-label\'>distance</span>: {{ "%.2f" | format(seg.length) }} miles<br /><span class=\'seg-label\'>lanes</span>: {{ seg.lanes }}<br /><span class=\'seg-label\'>shoulder</span>: {{ seg.shoulder }}<br /><span class=\'seg-label\'>traffic</span>: {{ seg.traffic }}<br /><span class=\'seg-label\'>speed</span>: {{ seg.speed }} <br> <img src=\'{{ seg.profile_small }}\' />",
      polyline : {
-       color: "#FF0000",
+       strokeColor: "#FF0000",
 {% if ride_type == 'mtb' %}
-       weight: 2,
+       strokeWeight: 2,
 {% else %}
-       weight: 3,
+       strokeWeight: 3,
 {% endif %}
-       points: "{{ seg.encoded_points | replace('\\', '\\\\') }}",
-       levels: "{{ seg.encoded_levels | replace('\\', '\\\\') }}",
-       zoomFactor: {{ zoom_factor }},
-       numLevels: {{ zoom_levels }}
+       pts: [
+{%     set inner_inner_comma = joiner(",") %}
+{%     for pt in seg.pts %}
+         {{ inner_inner_comma() }}
+         [{{ pt[0] }}, {{ pt[1] }}]
+{%     endfor %}
+       ]
        },
      mid_lat: {{ seg.mid_lat }},
      mid_lon: {{ seg.mid_lon }}

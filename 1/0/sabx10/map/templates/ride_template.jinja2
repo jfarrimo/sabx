@@ -36,20 +36,20 @@
 
     <link rel="stylesheet" type="text/css" media="all" href="{{ css_dir }}/reset.css" />
     <link rel="stylesheet" type="text/css" media="all" href="{{ css_dir }}/text.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="{{ css_dir }}/smoothness/jquery-ui-1.7.2.custom.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="{{ css_dir }}/redmond/jquery-ui-1.8.1.custom.css" />
     <link rel="stylesheet" type="text/css" media="all" href="{{ css_dir }}/ride.css" />
 
     <script type="text/javascript"
-      src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAArRZNePBRmfwJkDkkRPNESRTitLe_f0f26hQB0rQ7w47bJ0GWghQJwLFzqditUQX-ubwfnxdVTzuoLQ&amp;sensor=false">
+      src="http://maps.google.com/maps/api/js?sensor=false">
     </script>
     <script type="text/javascript"
-	    src="http://gmaps-utility-library.googlecode.com/svn/trunk/markermanager/1.1/src/markermanager.js">
+	    src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclusterer/1.0/src/markerclusterer_compiled.js">
     </script>
 
     <script type="text/javascript" src="{{ filebase }}.js"></script>
 
-    <script type="text/javascript" src="{{ js_dir }}/jquery-1.3.2.min.js"></script>
-    <script type="text/javascript" src="{{ js_dir }}/jquery-ui-1.7.2.custom.min.js"></script>
+    <script type="text/javascript" src="{{ js_dir }}/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="{{ js_dir }}/jquery-ui-1.8.1.custom.min.js"></script>
     <script type="text/javascript" src="{{ js_dir }}/ride.js"></script>
   </head>
   <body>
@@ -68,12 +68,22 @@
 	  </td>
 
 	  <td>
-	    <span id="header-title">{{ title }}</span>
+	    <input class="sabx_button" type="checkbox" id="show-tabs" checked="1"/>
+	    <label for="show-tabs">Show Tabs</label>
+	  </td>
+
+	  <td>
+	    <input class="sabx_button" type="checkbox" id="cluster-markers"/>
+	    <label for="cluster-markers">Cluster Markers</label>
+	  </td>
+		
+	  <td>
+	    <a class="sabx_button" id="map-rezoom" href="#">Reset Map</a> 
 	  </td>
 
 	  <td id="header-rides">
 	    <form action="">
-	      <div>
+	      <div id="ride-distances">
 {% for ride in rides %}
                 <input type="radio" id="header-ride-{{ loop.index0 }}" name="header-ride"
 {%   if loop.first %}
@@ -87,7 +97,7 @@
 	  </td>
 
 	  <td>
-	    <a href="" id="pdf-it">Download PDF</a>
+	    <a class="sabx_button" id="pdf-it" href="#">Download PDF</a>
 	  </td>
 
 	</tr>
@@ -108,6 +118,12 @@
 {# OVERVIEW #}
 {############}
       <div id="tabs-overview">
+
+	<div id="title">
+	  {{ title }}
+	  <hr>
+	</div>
+
 {% if photos %}
 	<p>
 	  <img src="{{ photos.src }}" title="{{ photos.title }}" alt="{{ photos.title }}"/>
@@ -136,6 +152,12 @@
 	  </p>
 {% endfor %}
 	</form>
+
+	<div id="copyright">
+	  <hr>
+	  All images, text, and HTML Copyright &#169; 2003, 2009, 2010 by Farrimond Technologies, LLC
+	</div>
+
       </div>
 
 {###########}
@@ -152,15 +174,8 @@
 	</p>
 	<form action="">
 	  <div>
-            <label for="park-from">Starting from:</label>
-	    <br />
-	    <textarea id="park-from" rows="2" cols="30"></textarea>
-	    <br />
-            <input type="submit" id="park-submit" value="Get directions to parking" /> 
-	    <br />
-	    <input type="submit" id="park-clear" value="Clear parking directions from map" />
-	    <br />
-	    <input type="submit" id="park-print" value="Get printable parking directions" />
+	    <input type="submit" class="sabx_button" id="park-print" 
+		   value="Parking Directions" />
 	  </div>
         </form>
 	<p />
@@ -727,38 +742,10 @@
     </div>
 
     <div id="map">
-      <div id="map-toggles">
-	<form action="">
-	  <div>
-	    <input type="submit" class="map-show-tabs" id="show-tabs-show" value="Show Tabs" style="display: none;"/>
-	    <input type="submit" class="map-show-tabs" id="show-tabs-hide" value="Hide Tabs" /> 
-	    
-	    <input type="submit" id="map-rezoom" value="Reset Map" /> 
-
-	    <input type="checkbox" class="show-park" id="show-park-ck" checked="checked" />
-	    <label class="show-park" for="show-park-ck">parking</label>
-	    <img src="{{ marker_dir }}/park.png" id="show-park-img" width="32" height="32" alt="Parking Icon" />
-
-	    <input type="checkbox" class="show-stops" id="show-stops-ck" checked="checked" />
-	    <label class="show-stops" for="show-stops-ck">stops</label>
-	    <img src="{{ marker_dir }}/stop.png" id="show-stops-img" width="32" height="32" alt="Stop Icon" />
-
-	    <input type="checkbox" class="show-pois" id="show-pois-ck" checked="checked" />
-	    <label class="show-pois" for="show-pois-ck">POI</label>
-	    <img src="{{ marker_dir }}/poi.png" id="show-pois-img" width="32" height="32" alt="POI Icon" />
-
-	    <input type="checkbox" class="show-turns" id="show-turns-ck" checked="checked" />
-	    <label class="show-turns" for="show-turns-ck">turns</label>
-	    <img src="{{ marker_dir }}/99.9.png" id="show-turns-img" width="32" height="32" alt="Turn Icon" />
-	  </div>
-	</form>
-      </div>
       <div id="map-canvas"></div>
     </div>
 
-    <div id="sab-copyright">
-      All images, text, and HTML Copyright &#169; 2003, 2009, 2010 by Farrimond Technologies, LLC
-    </div>
+    <div id="sab-copyright"> </div>
 
 {% if analytics %}
     <script type="text/javascript">

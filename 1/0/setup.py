@@ -23,7 +23,7 @@
 from distutils.core import setup
 
 setup(name='sabx10',
-      version='1.0',
+      version='1.1',
       description='SABX file handling',
       long_description='Create and manipulate SABX files',
       license='GPLv3+, LGPLv3+',

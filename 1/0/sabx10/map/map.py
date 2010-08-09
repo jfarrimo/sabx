@@ -110,8 +110,7 @@ def _process_segments(ride_segs, graph_filebase, ride_index):
     """
     for seg in ride_segs:
         # encode points
-        pts = [(pt.lat, pt.lon) for pt in seg.waypoints]
-        seg.encoded_points, seg.encoded_levels = glineenc.encode_pairs(pts)
+        seg.pts = [(pt.lat, pt.lon) for pt in seg.waypoints]
 
         # type of 'seg'
         seg.item_type = 'seg'

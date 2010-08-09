@@ -20,51 +20,47 @@
 //
 //**************************************************************************
 var map;
-var mgr;
 var rideIndex = 0;
 
 //****************************************************************
-// OVERLAYS
+// MARKERS
 //****************************************************************
 
+var mgr = null;
 var parkingMarker = null;
 var stopMarkers = null;
 var poiMarkers = null;
-var hasTurnIcons = true;
-var infoOptions = {maxWidth: 350};
+var turnMarkers = null;
 
-function createParkingOptions() {
-    var icon = new GIcon(G_DEFAULT_ICON);
-    icon.image = "../markers/park.png";
-    icon.iconSize = GSize(32, 32);
-    return { icon:icon, title:"Parking" };
+function createParkingOptions(position) {
+    var icon = new google.maps.MarkerImage("../markers/park.png", 
+					   google.maps.Size(32, 32));
+    return { icon: icon, position: position, title: "Parking" };
 }
 
-function createStopOptions() {
-    var icon = new GIcon(G_DEFAULT_ICON);
-    icon.image = "../markers/stop.png";
-    icon.iconSize = GSize(32, 32);
-    return { icon:icon, title:"Stop" };
+function createStopOptions(position) {
+    var icon = new google.maps.MarkerImage("../markers/stop.png", 
+					   google.maps.Size(32, 32));
+    return { icon: icon, position: position, title: "Stop" };
 }
 
-function createPOIOptions() {
-    var icon = new GIcon(G_DEFAULT_ICON);
-    icon.image = "../markers/poi.png";
-    icon.iconSize = GSize(32, 32);
-    return { icon:icon, title:"POI" };
+function createPOIOptions(position) {
+    var icon = new google.maps.MarkerImage("../markers/poi.png", 
+					   google.maps.Size(32, 32));
+    return { icon: icon, position: position, title: "POI" };
 }
 
-function createTurnOptions(icon_name) {
-    var icon = new GIcon(G_DEFAULT_ICON);
-    icon.image = icon_name;
-    icon.iconSize = GSize(32, 32);
-    return { icon:icon, title:"Turn" };
+function createTurnOptions(icon_name, position) {
+    var icon = new google.maps.MarkerImage(icon_name,
+					   google.maps.Size(32, 32));
+    return { icon: icon, position: position, title: "Turn" };
 }
 
-function createMarker(map, point, options, z, theHtml) {
-    var marker = new GMarker(point, options);
-    GEvent.addListener(marker, "click", function() {
-	    map.openInfoWindowHtml(point, theHtml, infoOptions);
+function createMarker(map, options, z, theHtml) {
+    var marker = new google.maps.Marker(options);
+    google.maps.event.addListener(marker, "click", function() {
+	    infoWindow.setContent(theHtml);
+	    infoWindow.open(map,marker);
 	});
     options.zIndexProcess = function() {
         return z;
@@ -72,168 +68,187 @@ function createMarker(map, point, options, z, theHtml) {
     return marker;
 }
 
-function createSegmentPolyline(map, polyline, 
-			       roadHtml, turnHtml, profileHtml) {
-    var line = new GPolyline.fromEncoded(polyline);
-    GEvent.addListener(line, "click", function(latlng) {
-	    var roadTab = new GInfoWindowTab("Road", roadHtml);
-	    var profileTab = new GInfoWindowTab("Profile", profileHtml);
-	    map.openInfoWindowTabsHtml(latlng, [roadTab, profileTab], 
-				       infoOptions);
+function createParkingIcon(index, map) {
+    var point = new google.maps.LatLng(parking[index].lat, 
+				       parking[index].lon);
+    var parkingOptions = createParkingOptions(point);
+    parkingMarker = createMarker(map, parkingOptions, 
+				 1000, parking[index].html);
+}
+
+function createStopIcons(index, map) {
+    stopMarkers = [];
+    for (var i = 0; i < stops[index].length; i++) {
+	var point = new google.maps.LatLng(stops[index][i].lat, 
+					   stops[index][i].lon);
+	var stopOptions = createStopOptions(point);
+	var marker = createMarker(map, stopOptions, 750 + i, 
+				  stops[index][i].html);
+	stopMarkers.push(marker);
+    }
+}
+
+function createPOIIcons(index, map) {
+    poiMarkers = [];
+    for (var i = 0; i < pois[index].length; i++) {
+	var point = new google.maps.LatLng(pois[index][i].lat, 
+					   pois[index][i].lon);
+	var poiOptions = createPOIOptions(point);
+	var marker = createMarker(map, poiOptions, 750 + i, 
+				  pois[index][i].html);
+	poiMarkers.push(marker);
+    }
+}
+
+function createTurnIcons(index, map) {
+    turnMarkers = [];
+    for (var i = 0; i < turns[index].length; i++) {
+	var point = new google.maps.LatLng(turns[index][i].lat, turns[index][i].lon);
+	var turnOptions = 
+	    createTurnOptions("../markers/" + turns[index][i].icon, point);
+	var marker = createMarker(map, turnOptions, 100 + i, 
+				  turns[index][i].html);
+	turnMarkers.push(marker);
+    }
+}
+
+function createMarkers(index, map) {
+    createParkingIcon(index, map);
+    createStopIcons(index, map);
+    createPOIIcons(index, map);
+    createTurnIcons(index, map);
+}
+
+function destroyMarkers() {
+    parkingMarker = null;
+    stopMarkers = null;
+    poiMarkers = null;
+    turnMarkers = null;
+}
+
+function hideMarkers() {
+    if (mgr !== null) {
+	mgr.clearMarkers();
+    }
+
+    if (parkingMarker !== null) {
+	parkingMarker.setMap(null);
+    }
+    if (stopMarkers !== null) {
+	for (i=0; i<stopMarkers.length; i++) {
+	    stopMarkers[i].setMap(null);
+	}
+    }
+    if (poiMarkers !== null) {
+	for (i=0; i<poiMarkers.length; i++) {
+	    poiMarkers[i].setMap(null);
+	}
+    }
+    if (turnMarkers !== null) {
+	for (i=0; i<turnMarkers.length; i++) {
+	    turnMarkers[i].setMap(null);
+	}
+    }
+}
+
+function showMarkers(map) {
+    if (mgr !== null) {
+	mgr.clearMarkers();
+    }
+
+    parkingMarker.setMap(map);
+    for (i=0; i<stopMarkers.length; i++) {
+	stopMarkers[i].setMap(map);
+    }
+    for (i=0; i<poiMarkers.length; i++) {
+	poiMarkers[i].setMap(map);
+    }
+    for (i=0; i<turnMarkers.length; i++) {
+	turnMarkers[i].setMap(map);
+    }
+}
+
+function clusterMarkers(map) {
+    mgr.addMarker(parkingMarker);
+    for (i=0; i<stopMarkers.length; i++) {
+	mgr.addMarker(stopMarkers[i]);
+    }
+    for (i=0; i<poiMarkers.length; i++) {
+	mgr.addMarker(poiMarkers[i]);
+    }
+    for (i=0; i<turnMarkers.length; i++) {
+	mgr.addMarker(turnMarkers[i]);
+    }
+}
+
+function addMarkers(index, map) {
+    createMarkers(index, map);
+    if ( $("#cluster-markers").get(0).checked ) {
+	clusterMarkers(map);
+    }
+    else {
+	showMarkers(map);
+    }
+}
+
+//****************************************************************
+// OVERLAYS
+//****************************************************************
+
+var segLines = null;
+var infoWindow = new google.maps.InfoWindow({content: "", maxWidth: 350});
+
+function createSegmentPolyline(map, polyline, theHtml) {
+    var pt_array = [];
+    for (i=0; i<polyline.pts.length; i++) {
+	pt_array.push(new google.maps.LatLng(polyline.pts[i][0], 
+					     polyline.pts[i][1]));
+    }
+    polyline.path = pt_array;
+    
+    var line = new google.maps.Polyline(polyline);
+    google.maps.event.addListener(line, "click", function(event) {
+	    infoWindow.setContent(theHtml);
+	    infoWindow.setPosition(event.latLng);
+	    infoWindow.open(map);
 	});
+	  
     return line;
 }
 
-function addParkingIcon(index) {
-    if( $("#show-park-ck").get(0).checked ) {
-	var parkingOptions = createParkingOptions();
-	var point = new GLatLng(parking[index].lat, parking[index].lon);
-	parkingMarker = createMarker(map, point, parkingOptions, 
-				     1000, parking[index].html);
-	map.addOverlay(parkingMarker);
-    }
-}
-
-function toggleParkingIcon(index) {
-    if( parkingMarker === null ) {
-	addParkingIcon(index);
-    } else if( parkingMarker !== null ) {
-	map.removeOverlay(parkingMarker);
-	parkingMarker = null;
-    }
-}
-
-function addStopIcons(index) {
-    if( $("#show-stops-ck").get(0).checked ) {
-	stopMarkers = [];
-	var stopOptions = createStopOptions();
-	for (var i = 0; i < stops[index].length; i++) {
-	    var point = new GLatLng(stops[index][i].lat, stops[index][i].lon);
-	    var marker = createMarker(map, point, stopOptions, 750 + i, 
-				      stops[index][i].html);
-	    map.addOverlay(marker);
-	    stopMarkers.push(marker);
-	}
-    }
-}
-
-function toggleStopIcons(index) {
-    if( stopMarkers === null ) {
-	addStopIcons(index);
-    } else {
-	for(i=0; i<stopMarkers.length; i++) {
-	    map.removeOverlay(stopMarkers[i]);
-	}
-	stopMarkers = null;
-    }
-}
-
-function addPOIIcons(index) {
-    if( $("#show-pois-ck").get(0).checked ) {
-	poiMarkers = [];
-	var poiOptions = createPOIOptions();
-	for (var i = 0; i < pois[index].length; i++) {
-	    var point = new GLatLng(pois[index][i].lat, pois[index][i].lon);
-	    var marker = createMarker(map, point, poiOptions, 750 + i, 
-				      pois[index][i].html);
-	    map.addOverlay(marker);
-	    poiMarkers.push(marker);
-	}
-    }
-}
-
-function togglePOIIcons(index) {
-    if( poiMarkers === null ) {
-	addPOIIcons(index);
-    } else {
-	for(i=0; i<poiMarkers.length; i++) {
-	    map.removeOverlay(poiMarkers[i]);
-	}
-	poiMarkers = null;
-    }
-}
-
-function addTurnIcons(index) {
-    if( $("#show-turns-ck").get(0).checked ) {
-	mgr.clearMarkers();
-	for (var i = 0; i < turns[index].length; i++) {
-	    var turnOptions = 
-		createTurnOptions("../markers/" + turns[index][i].icon);
-	    var point = new GLatLng(turns[index][i].lat, turns[index][i].lon);
-	    mgr.addMarker(createMarker(map, point, turnOptions, 100 + i, 
-				       turns[index][i].html),
-			  turns[index][i].min_zoom);
-	}
-	hasTurnIcons = true;
-    }
-}
-
-function toggleTurnIcons(index) {
-    if( hasTurnIcons ) {
-	mgr.clearMarkers();
-	hasTurnIcons = false;
-    } else {
-	addTurnIcons(index);
-    }
-}
-
-function addSegments(index) {
+function addSegments(index, map) {
+    segLines = [];
     for( var i = 0; i < segments[index].length; i++ ) {
-        map.addOverlay(createSegmentPolyline(map, 
-					     segments[index][i].polyline, 
-					     segments[index][i].roadHtml, 
-					     segments[index][i].turnHtml,
-					     segments[index][i].profileHtml));
+	var seg = createSegmentPolyline(map, 
+					segments[index][i].polyline, 
+					segments[index][i].theHtml);
+	seg.setMap(map);
+	segLines.push(seg);
+    }
+}
+
+function clearSegments() {
+    if (segLines !== null ) {
+	for (i=0; i<segLines.length; i++) {
+	    segLines[i].setMap(null);
+	}
+	segLines = null;
     }
 }
 
 function clearOverlays(){
-    map.clearOverlays();
-    mgr.clearMarkers();
-    parkingMarker = null;
-    stopMarkers = null;
-    poiMarkers = null;
-    hasTurnIcons = false;
+    hideMarkers();
+    destroyMarkers();
+    clearSegments();
 }
 
 //****************************************************************
 // PARKING DIRECTIONS
 //****************************************************************
 
-var parkingDirections;
-var hasDirections = false;
-
-function initParkingDirections() {
-    hasDirections = false;
-    parkingDirections = new GDirections(map, $("#park-directions").get(0));
-    GEvent.addListener(parkingDirections, "addoverlay", function() {
-	    centerAndZoomMap();
-	    hasDirections = true;
-	});
-}
-
-function loadParkingDirections(index) {
-    var dirText = "from: " + $("#park-from").get(0).value + 
-	" to: " + parking[index].lat + ", " + parking[index].lon;
-    parkingDirections.load(dirText, {preserveViewport: true});
-}
-
-function clearParkingDirections() {
-    parkingDirections.clear();
-    hasDirections = false;
-}
-
-function addParkingDirectionsBounds(bounds) {
-    var parkBounds = parkingDirections.getBounds();
-    if( parkBounds != null) {
-	bounds.extend(parkBounds.getSouthWest());
-	bounds.extend(parkBounds.getNorthEast());
-    }
-}
-
 function printableParkingDirections(index) {
     var dirUrl = "http://maps.google.com/maps?" + 
-	"saddr=" + $("#park-from").get(0).value.replace(/[ \n]/g, "+") +
+	//"saddr=" + $("#park-from").get(0).value.replace(/[ \n]/g, "+") +
 	"&daddr=" + parking[index].lat + "," + parking[index].lon;
     window.open(dirUrl);
 }
@@ -242,15 +257,19 @@ function printableParkingDirections(index) {
 // DISPLAY
 //****************************************************************
 
-function centerAndZoomMap() {
-    var sw = new GLatLng(ride_bounds[rideIndex].min_lat, 
+function getBounds() {
+    var sw = new google.maps.LatLng(ride_bounds[rideIndex].min_lat, 
 			 ride_bounds[rideIndex].min_lon);
-    var ne = new GLatLng(ride_bounds[rideIndex].max_lat, 
+    var ne = new google.maps.LatLng(ride_bounds[rideIndex].max_lat, 
 			 ride_bounds[rideIndex].max_lon);
-    var bounds = new GLatLngBounds(sw, ne);
-    addParkingDirectionsBounds(bounds);
-    map.setCenter(bounds.getCenter(), 
-		  map.getBoundsZoomLevel(bounds));
+    return new google.maps.LatLngBounds(sw, ne);
+}
+
+function centerAndZoomMap() {
+    var bounds = getBounds();
+    map.fitBounds(bounds);
+    //addParkingDirectionsBounds(bounds);
+    //map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
 }
 
 function displayParking(index) {
@@ -283,15 +302,12 @@ function displayPOIs(index) {
 }
 
 function displayRide(index) {
-    clearParkingDirections();
+    //clearParkingDirections();
     clearOverlays();
     centerAndZoomMap();
-
-    addParkingIcon(index);
-    addStopIcons(index);
-    addPOIIcons(index);
-    addTurnIcons(index);
-    addSegments(index);
+    
+    addMarkers(index, map);
+    addSegments(index, map);
 
     displayParking(index);
     displayInstructions(index);
@@ -300,14 +316,17 @@ function displayRide(index) {
     displayPOIs(index);
 }
 
+function resizeMapDiv(map) {
+    google.maps.event.trigger(map, 'resize')
+}
+
 //****************************************************************
 // LAYOUT
 //****************************************************************
 
 // I'm assuming nothing has a margin.
 
-var spacing = 5;
-var showTabs = true;
+var spacing = 0;
 
 function setItemHeight(item, availHeight) {
     var height = availHeight -
@@ -341,13 +360,6 @@ function layoutHeader(winWidth) {
     return hdr.outerHeight(true) + spacing;
 }
 
-function layoutCopyright(winHeight, winWidth) {
-    var cpy = $("#sab-copyright");
-    setItemPosition(cpy, winHeight - cpy.outerHeight(true) - spacing, spacing);
-    setItemWidth(cpy, winWidth - (spacing * 2) );
-    return cpy.outerHeight(true) + spacing;
-}
-
 function layoutTabs(winHeight, winWidth, hdrBottom) {
     var tabs = $("#tabs");
     setItemPosition(tabs, hdrBottom + spacing + 1, spacing);
@@ -372,25 +384,19 @@ function layoutMap(winHeight, hdrBottom, tabsRight) {
     var map = $("#map");
     setItemPosition(map, hdrBottom + spacing + 1, tabsRight + spacing + 1);
 
-    var divAvailHeight = winHeight - (hdrBottom + 1) - (spacing * 2);
-    divAvailHeight = setItemHeight(map, divAvailHeight);
-
-    var mapAvailHeight = divAvailHeight - $("#map-toggles").outerHeight(true);
-    setItemHeight($("#map-canvas"), mapAvailHeight);
+    var mapAvailHeight = winHeight - (hdrBottom + 1) - (spacing * 2);
+    divAvailHeight = setItemHeight(map, mapAvailHeight);
 
     var mapAvailWidth = $(window).width() - (tabsRight + 1) - (spacing * 2);
     mapAvailWidth = setItemWidth($("#map"), mapAvailWidth);
-    setItemWidth($("#map-canvas"), mapAvailWidth);
 }
 
 function layoutEverything() {
     var windowHeight = $(window).height();
     var windowWidth = $(window).width();
 
-    var headerBottom = layoutHeader(windowWidth);
-    var copyHeight = layoutCopyright(windowHeight, windowWidth);
-    windowHeight -= copyHeight;
-    if(showTabs) {
+    var headerBottom = layoutHeader(windowWidth) - 1;
+    if ( $("#show-tabs").get(0).checked ) {
 	var tabsRight = layoutTabs(windowHeight, windowWidth, headerBottom);
 	layoutMap(windowHeight, headerBottom, tabsRight);
     }
@@ -404,14 +410,29 @@ function layoutEverything() {
 //****************************************************************
 
 function initializeMap() {
-    map = new GMap2(document.getElementById("map-canvas"));
+    var bounds = getBounds();
+
+    var map_type = google.maps.MapTypeId.ROADMAP;
     if( ride_data.ride_type == "mtb" ) {
-	map.setMapType(G_PHYSICAL_MAP);
+	map_type = google.maps.MapTypeId.TERRAIN;
     }
-    map.setUIToDefault();
-    initParkingDirections();
-    centerAndZoomMap(); // redundant, but have to before calling ops on map
-    mgr = new MarkerManager(map);
+
+    var myOptions = {
+	zoom: 8,
+	center: bounds.getCenter(),
+	mapTypeId: map_type
+    };
+
+    map = new google.maps.Map(document.getElementById("map-canvas"), 
+			      myOptions);
+
+    //initParkingDirections();
+    //addParkingDirectionsBounds(bounds);
+    map.fitBounds(bounds);
+
+    mgr = new MarkerClusterer(map, [], {gridSize: 35});
+
+    
 
     /* turn off map adds since they suck
     var publisher_id = 'pub-3294694121856190';
@@ -425,285 +446,240 @@ function initializeMap() {
 }
 
 $(document).ready(function() {
-	if (GBrowserIsCompatible()) {
-	    $("#no_js_warning").css("display", "none");
-	    $("html,body").css("overflow", "hidden");
-	    $("#header,#tabs,#map,#sab-copyright").css("display", "block");
-	    $("#header,#tabs,#map,#sab-copyright").css("position", "absolute");
-	    $("#tabs").tabs();
-	    $(".prof-dialogs").dialog({ autoOpen: false, 
-			height: 450, 
-			width: 800 });
-	    $(".help-dialogs").dialog({ autoOpen: false, 
-			height: 450, 
-			width: 800 });
-	    layoutEverything();
-	    initializeMap();
-	    displayRide(rideIndex);
+	$("#no_js_warning").css("display", "none");
+	$("html,body").css("overflow", "hidden");
+	$("#header,#tabs,#map").css("display", "block");
+	$("#header,#tabs,#map").css("position", "absolute");
+	$("#tabs").tabs();
+	$(".prof-dialogs").dialog({ autoOpen: false, 
+		    height: 450, 
+		    width: 800 });
+	$(".help-dialogs").dialog({ autoOpen: false, 
+		    height: 450, 
+		    width: 800 });
+	$(".sabx_button").button();
+	$("#ride-distances").buttonset();
+	layoutEverything();
+	initializeMap();
+	displayRide(rideIndex);
 
-	    $(document.body).unload(function() {
-		    GUnload();
-		});
+	$(document.body).unload(function() {
+		GUnload();
+	    });
 
-	    $(window).resize(function() {
-		    layoutEverything();
-		    map.checkResize();
-		    centerAndZoomMap();
-		});
+	$(window).resize(function() {
+		layoutEverything();
+		resizeMapDiv(map);
+		centerAndZoomMap();
+	    });
  
-	    //************************
-	    // misc. user interaction
-	    //************************
+	//************************
+	// misc. user interaction
+	//************************
 
-	    function unSelClass(theClass) {
-		$(theClass).removeClass("header-ride-sel");
-		$(theClass).addClass("header-ride-unsel");
-	    }
+	function unSelClass(theClass) {
+	    $(theClass).removeClass("header-ride-sel");
+	    $(theClass).addClass("header-ride-unsel");
+	}
 
-	    function selClass(theClass) {
-		$(theClass).removeClass("header-ride-unsel");
-		$(theClass).addClass("header-ride-sel");
-	    }
+	function selClass(theClass) {
+	    $(theClass).removeClass("header-ride-unsel");
+	    $(theClass).addClass("header-ride-sel");
+	}
 
-	    $('#header-ride-0').get(0).checked = true;
-	    $('#over-ride-0').get(0).checked = true;
-	    for( var i=0; i<ride_data.ride_count; i++) {
-		var label = '#header-ride-' + i;
-		$(label).data("index", i).click(function(event) {
-			rideIndex = $(event.target).data("index");
-			clearParkingDirections();
-			displayRide(rideIndex);
-			$('#over-ride-' + rideIndex).get(0).checked = true;
-		    });
-		var label = '#over-ride-' + i;
-		$(label).data("index", i).click(function(event) {
-			rideIndex = $(event.target).data("index");
-			clearParkingDirections();
-			displayRide(rideIndex);
-			$('#header-ride-' + rideIndex).get(0).checked = true;
-		    });
-	    }
-
-	    $(".parking-spans").click(function(event) {
-		    var parts = event.target.id.split('-');
-		    var ride = parseInt(parts[1], 10);
-		    var point = 
-			new GLatLng(parking[ride].lat, 
-				    parking[ride].lon);
-		    map.openInfoWindowHtml(point, parking[ride].html, infoOptions);
+	$('#header-ride-0').get(0).checked = true;
+	$('#over-ride-0').get(0).checked = true;
+	for( var i=0; i<ride_data.ride_count; i++) {
+	    var label = '#header-ride-' + i;
+	    $(label).data("index", i).click(function(event) {
+		    rideIndex = $(event.target).data("index");
+		    //clearParkingDirections();
+		    displayRide(rideIndex);
+		    $('#over-ride-' + rideIndex).get(0).checked = true;
 		});
-
-	    //*********************
-	    // stops
-	    //*********************
-	    $(".stops-rows").click(function(event) {
-		    var classes = event.target.className.split(' ');
-		    var parts = classes[0].split('-');
-		    var ride = parseInt(parts[1], 10);
-		    var index = parseInt(parts[2], 10);
-		    var point = 
-			new GLatLng(stops[ride][index].lat, 
-				    stops[ride][index].lon);
-		    map.openInfoWindowHtml(point, stops[ride][index].html, infoOptions);
-		});
-
-	    //*********************
-	    // pois
-	    //*********************
-	    $(".pois-rows").click(function(event) {
-		    var classes = event.target.className.split(' ');
-		    var parts = classes[0].split('-');
-		    var ride = parseInt(parts[1], 10);
-		    var index = parseInt(parts[2], 10);
-		    var point = 
-			new GLatLng(pois[ride][index].lat, 
-				    pois[ride][index].lon);
-		    map.openInfoWindowHtml(point, pois[ride][index].html, infoOptions);
-		});
-
-	    //*********************
-	    // instructions
-	    //*********************
-	    $(".inst-ckbox").click(function() {
-		    displayInstructions(rideIndex);
-		});
-	    $(".inst-rows").click(function(event) {
-		    var parts = event.target.className.split('-');
-		    var ride = parseInt(parts[1], 10);
-		    var index = parseInt(parts[2], 10);
-		    var point;
-		    if( parts[0] == "segs" ) {
-			point = 
-			    new GLatLng(segments[ride][index].mid_lat, 
-					segments[ride][index].mid_lon);
-			var roadTab = new GInfoWindowTab("Road", 
-						     segments[ride][index].roadHtml);
-			var profTab = new GInfoWindowTab("Profile", 
-						     segments[ride][index].profileHtml);
-			map.openInfoWindowTabsHtml(point, 
-						   [roadTab, profTab], infoOptions);
-		    }
-		    else {
-			point = 
-			    new GLatLng(turns[ride][index].lat, 
-					turns[ride][index].lon);
-			map.openInfoWindowHtml(point, turns[ride][index].html, infoOptions);
-		    }
-		});
-
-	    //*********************
-	    // profiles
-	    //*********************
-	    $(".prof-rows").click(function(event) {
-		    if( event.target.className.indexOf("prof-graph") == -1 ){
-			var classes = event.target.className.split(' ');
-			var parts = classes[0].split('-');
-			var ride = parseInt(parts[1], 10);
-			var index = parseInt(parts[2], 10);
-			var point = 
-			    new GLatLng(segments[ride][index].mid_lat, 
-					segments[ride][index].mid_lon);
-			roadTab = new GInfoWindowTab("Road", 
-						     segments[ride][index].roadHtml);
-			profTab = new GInfoWindowTab("Profile", 
-						     segments[ride][index].profileHtml);
-			map.openInfoWindowTabsHtml(point, 
-						   [roadTab, profTab], infoOptions);
-		    }
-		});
-	    $(".prof-graph-prof").click(function(event) {
-		    var dlgName = "";
-		    if( event.target.className.indexOf("prof-graph-prof") > -1 ){
-			dlgName = "#prof-prof-";
-		    } else {
-			dlgName = "#prof-hist-";
-		    }
-		    var classes = event.target.className.split(' ');
-		    var parts = classes[0].split('-');
-		    var ride = parseInt(parts[1], 10);
-		    if( parts.length > 2 ) {
-			var index = parseInt(parts[2], 10);
-			dlgName = dlgName + ride + "-" + index;
-		    } else {
-			dlgName = dlgName + ride;
-		    }
-		    $(dlgName).dialog('open');
-		});
-
-	    //*********************
-	    // map controls
-	    //*********************
-	    $(".show-park").click(function(event) {
-		    toggleParkingIcon(rideIndex);
-		});
-	    $("#show-park-img").click(function(event) {
-		    ckbox = $("#show-park-ck").get(0);
-		    ckbox.checked = !ckbox.checked;
-		    toggleParkingIcon(rideIndex);
-		});
-	    $(".show-stops").click(function(event) {
-		    toggleStopIcons(rideIndex);
-		});
-	    $("#show-stops-img").click(function(event) {
-		    ckbox = $("#show-stops-ck").get(0);
-		    ckbox.checked = !ckbox.checked;
-		    toggleStopIcons(rideIndex);
-		});
-	    $(".show-pois").click(function(event) {
-		    togglePOIIcons(rideIndex);
-		});
-	    $("#show-pois-img").click(function(event) {
-		    ckbox = $("#show-pois-ck").get(0);
-		    ckbox.checked = !ckbox.checked;
-		    togglePOIIcons(rideIndex);
-		});
-	    $(".show-turns").click(function(event) {
-		    toggleTurnIcons(rideIndex);
-		});
-	    $("#show-turns-img").click(function(event) {
-		    ckbox = $("#show-turns-ck").get(0);
-		    ckbox.checked = !ckbox.checked;
-		    toggleTurnIcons(rideIndex);
-		});
-	    $("#show-tabs-show").click(function(event) {
-		    showTabs = true;
-
-		    layoutEverything();
-		    map.checkResize();
-		    $("#tabs").show();
-		    centerAndZoomMap();
-
-		    $("#show-tabs-show").hide();
-		    $("#show-tabs-hide").show();
-
-		    event.preventDefault();
-		});
-	    $("#show-tabs-hide").click(function(event) {
-		    showTabs = false;
-
-		    $("#tabs").hide();
-		    layoutEverything();
-		    map.checkResize();
-		    centerAndZoomMap();
-
-		    $("#show-tabs-show").show();
-		    $("#show-tabs-hide").hide();
-
-		    event.preventDefault();
-		});
-	    $("#map-rezoom").click(function(event) {
-		    centerAndZoomMap();
-		    event.preventDefault();
-		});
-
-	    //********************
-	    // parking directions
-	    //********************
-	    $("#park-submit").click(function(event) {
-		    loadParkingDirections(rideIndex);
-		    event.preventDefault();
-		});
-	    $("#park-clear").click(function(event) {
-		    clearParkingDirections();
-		    centerAndZoomMap();
-		    event.preventDefault();
-		});
-	    $("#park-print").click(function(event) {
-		    printableParkingDirections(rideIndex);
-		    event.preventDefault();
-		});
-
-	    //********************
-	    // help
-	    //********************
-	    $("#parking-help").click(function(event) {
-		    $("#help-dlg-parking").dialog('open');
-		    event.preventDefault();
-		});
-	    $("#stops-help").click(function(event) {
-		    $("#help-dlg-stops").dialog('open');
-		    event.preventDefault();
-		});
-	    $("#pois-help").click(function(event) {
-		    $("#help-dlg-pois").dialog('open');
-		    event.preventDefault();
-		});
-	    $("#inst-help").click(function(event) {
-		    $("#help-dlg-inst").dialog('open');
-		    event.preventDefault();
-		});
-	    $("#profs-help").click(function(event) {
-		    $("#help-dlg-profs").dialog('open');
-		    event.preventDefault();
-		});
-
-	    //********************
-	    // printing
-	    //********************
-	    $("#pdf-it").click(function(event) {
-		    var pdf = ride_data.filebase + "_" + rideIndex + ".pdf"
-		    window.open(pdf);
-		    event.preventDefault();
+	    var label = '#over-ride-' + i;
+	    $(label).data("index", i).click(function(event) {
+		    rideIndex = $(event.target).data("index");
+		    //clearParkingDirections();
+		    displayRide(rideIndex);
+		    $('#header-ride-' + rideIndex).get(0).checked = true;
 		});
 	}
+
+	$(".parking-spans").click(function(event) {
+		var parts = event.target.id.split('-');
+		var ride = parseInt(parts[1], 10);
+		var point = 
+		    new google.maps.LatLng(parking[ride].lat, 
+					   parking[ride].lon);
+		infoWindow.setContent(parking[ride].html);
+		infoWindow.setPosition(point);
+		infoWindow.open(map);
+	    });
+
+	//*********************
+	// stops
+	//*********************
+	$(".stops-rows").click(function(event) {
+		var classes = event.target.className.split(' ');
+		var parts = classes[0].split('-');
+		var ride = parseInt(parts[1], 10);
+		var index = parseInt(parts[2], 10);
+		var point = 
+		    new google.maps.LatLng(stops[ride][index].lat, 
+					   stops[ride][index].lon);
+		infoWindow.setContent(stops[ride][index].html);
+		infoWindow.setPosition(point);
+		infoWindow.open(map);
+	    });
+
+	//*********************
+	// pois
+	//*********************
+	$(".pois-rows").click(function(event) {
+		var classes = event.target.className.split(' ');
+		var parts = classes[0].split('-');
+		var ride = parseInt(parts[1], 10);
+		var index = parseInt(parts[2], 10);
+		var point = 
+		    new google.maps.LatLng(pois[ride][index].lat, 
+					   pois[ride][index].lon);
+		infoWindow.setContent(pois[ride][index].html);
+		infoWindow.setPosition(point);
+		infoWindow.open(map);
+	    });
+
+	//*********************
+	// instructions
+	//*********************
+	$(".inst-ckbox").click(function() {
+		displayInstructions(rideIndex);
+	    });
+	$(".inst-rows").click(function(event) {
+		var parts = event.target.className.split('-');
+		var ride = parseInt(parts[1], 10);
+		var index = parseInt(parts[2], 10);
+		var point;
+		if( parts[0] == "segs" ) {
+		    point = 
+			new google.maps.LatLng(segments[ride][index].mid_lat, 
+					       segments[ride][index].mid_lon);
+		    infoWindow.setContent(segments[ride][index].theHtml);
+		    infoWindow.setPosition(point);
+		    infoWindow.open(map);
+		}
+		else {
+		    point = 
+			new google.maps.LatLng(turns[ride][index].lat, 
+					       turns[ride][index].lon);
+		    infoWindow.setContent(turns[ride][index].html);
+		    infoWindow.setPosition(point);
+		    infoWindow.open(map);
+		}
+	    });
+
+	//*********************
+	// profiles
+	//*********************
+	$(".prof-rows").click(function(event) {
+		if( event.target.className.indexOf("prof-graph") == -1 ){
+		    var classes = event.target.className.split(' ');
+		    var parts = classes[0].split('-');
+		    var ride = parseInt(parts[1], 10);
+		    var index = parseInt(parts[2], 10);
+		    var point = 
+			new google.maps.LatLng(segments[ride][index].mid_lat, 
+					       segments[ride][index].mid_lon);
+		    infoWindow.setContent(segments[ride][index].theHtml);
+		    infoWindow.setPosition(point);
+		    infoWindow.open(map);
+		}
+	    });
+	$(".prof-graph-prof").click(function(event) {
+		var dlgName = "";
+		if( event.target.className.indexOf("prof-graph-prof") > -1 ){
+		    dlgName = "#prof-prof-";
+		} else {
+		    dlgName = "#prof-hist-";
+		}
+		var classes = event.target.className.split(' ');
+		var parts = classes[0].split('-');
+		var ride = parseInt(parts[1], 10);
+		if( parts.length > 2 ) {
+		    var index = parseInt(parts[2], 10);
+		    dlgName = dlgName + ride + "-" + index;
+		} else {
+		    dlgName = dlgName + ride;
+		}
+		$(dlgName).dialog('open');
+	    });
+
+	//*********************
+	// map controls
+	//*********************
+	$("#show-tabs").click(function(event) {
+		if ( $("#show-tabs").get(0).checked ) {
+		    $("#tabs").show();
+		}
+		else {
+		    $("#tabs").hide();
+		}
+
+		layoutEverything();
+		resizeMapDiv(map);
+		centerAndZoomMap();
+	    });
+	$("#cluster-markers").click(function(event) {
+		hideMarkers();
+		destroyMarkers();
+		addMarkers(rideIndex, map);
+	    });
+	$("#map-rezoom").click(function(event) {
+		centerAndZoomMap();
+		event.preventDefault();
+	    });
+
+	//********************
+	// parking directions
+	//********************
+
+	$("#park-print").click(function(event) {
+		var dirUrl = "http://maps.google.com/maps?" + 
+		    "&daddr=" + parking[rideIndex].lat + "," + parking[rideIndex].lon;
+		window.open(dirUrl);
+		event.preventDefault();
+	    });
+
+	//********************
+	// help
+	//********************
+	$("#parking-help").click(function(event) {
+		$("#help-dlg-parking").dialog('open');
+		event.preventDefault();
+	    });
+	$("#stops-help").click(function(event) {
+		$("#help-dlg-stops").dialog('open');
+		event.preventDefault();
+	    });
+	$("#pois-help").click(function(event) {
+		$("#help-dlg-pois").dialog('open');
+		event.preventDefault();
+	    });
+	$("#inst-help").click(function(event) {
+		$("#help-dlg-inst").dialog('open');
+		event.preventDefault();
+	    });
+	$("#profs-help").click(function(event) {
+		$("#help-dlg-profs").dialog('open');
+		event.preventDefault();
+	    });
+
+	//********************
+	// printing
+	//********************
+	$("#pdf-it").click(function(event) {
+		var pdf = ride_data.filebase + "_" + rideIndex + ".pdf"
+		    window.open(pdf);
+		event.preventDefault();
+	    });
     });
